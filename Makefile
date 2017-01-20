@@ -1,7 +1,7 @@
 # Based on example Makefile:
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 CXX = g++
-CFLAGS = -std=c++11 -I nginx-configparser/
+CFLAGS = -std=c++0x -I nginx-configparser/
 TARGET = lightning
 
 all: $(TARGET)
