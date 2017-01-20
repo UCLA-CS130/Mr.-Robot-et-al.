@@ -1,0 +1,38 @@
+# From GitHub's gitignores, plus our own modifications 
+# Source: https://github.com/github/gitignore/blob/master/C%2B%2B.gitignore
+
+# Project Files
+lightning
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
