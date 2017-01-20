@@ -1,0 +1,3 @@
+[submodule "nginx-configparser"]
+	path = nginx-configparser
+	url = git@github.com:KyCodeHuynh/nginx-configparser.git
