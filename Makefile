@@ -4,10 +4,12 @@ CXX = g++
 CFLAGS = -std=c++0x -I nginx-configparser/
 TARGET = lightning
 
+SRC = lightning_main.cc lightning_server.cc
+
 all: $(TARGET)
 
-$(TARGET): lightning_main.cc
-	$(CXX) $(CFLAGS) lightning_main.cc -o $(TARGET)
+$(TARGET): $(SRC)
+	$(CXX) $(CFLAGS) $(SRC) -o $(TARGET)
 
 test:
 	python3 lightning_integration_test.py

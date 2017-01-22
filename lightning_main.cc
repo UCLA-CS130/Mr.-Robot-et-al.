@@ -4,7 +4,7 @@
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
-    std::cout << "Usage: ./config_parser <path to config file>\n" << std::endl;
+    std::cout << "Usage: lightning <path to config file>\n" << std::endl;
     return 1;
   }
 
