@@ -2,7 +2,7 @@
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 CXX = g++
 SRC_FLAGS = -std=c++0x -I nginx-configparser/
-LIB_FLAGS = -L/usr/lib/x86_64-linux-gnu -lboost_system
+LIB_FLAGS = -L/usr/lib/x86_64-linux-gnu -lpthread -lboost_system
 PARSER_PATH = ./nginx-configparser/
 
 TARGET = lightning

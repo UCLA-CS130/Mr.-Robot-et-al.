@@ -3,4 +3,6 @@ os:
 sudo: required
 compiler:
     - gcc
+before_install:
+    - sudo apt-get install libboost-all-dev
 script: make && make test && make clean
