@@ -1,8 +1,12 @@
 os:
     - linux
+# Ubuntu 14.04 to use newer Boost version
+dist: trusty
 sudo: required
 compiler:
     - gcc
-before_install:
-    - sudo apt-get install libboost-all-dev
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
 script: make && make test && make clean
