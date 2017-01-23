@@ -1,13 +1,17 @@
 # Based on example Makefile:
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
 CXX = g++
-CFLAGS = -std=c++0x -I nginx-configparser/
+SRC_FLAGS = -std=c++0x -I nginx-configparser/
+LIB_FLAGS = -lpthread -lboost_system
+PARSER_PATH = ./nginx-configparser/
+
 TARGET = lightning
+SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc
 
 all: $(TARGET)
 
-$(TARGET): lightning_main.cc
-	$(CXX) $(CFLAGS) lightning_main.cc -o $(TARGET)
+$(TARGET): $(SRC)
+	$(CXX) $(SRC_FLAGS) $(SRC) $(LIB_FLAGS) -o $(TARGET)
 
 test:
 	python3 lightning_integration_test.py
