@@ -2,7 +2,7 @@
 
 ![](https://travis-ci.com/UCLA-CS130/Mr.-Robot-et-al..svg?token=yz9yBJgd4Sxya2e1weD1&branch=master)
 
-Lightning is a modern, robust web server written in C++. 
+:zap: Lightning is a modern, robust web server written in C++. 
 
 Authors: 
 
