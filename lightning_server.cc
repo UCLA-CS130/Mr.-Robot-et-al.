@@ -1,6 +1,7 @@
 #include "config_parser.h"
 #include "lightning_server.h"
 #include "request_handlers.h"
+#include "server_config.h"
 
 #include <iostream>
 
@@ -14,7 +15,9 @@ LightningServer::LightningServer(const char* file_name)
 {
   config_parser_.Parse(file_name, &config_);
   std::cout << config_.ToString() << std::endl;
-  port_ = config_.statements_[0]->child_block_->statements_[0]->tokens_[1];
+  ServerConfig SC(config_);
+  port_ = SC.propertyLookUp("port");
+  // port_ = config_.statements_[0]->child_block_->statements_[0]->tokens_[1];
   std::cout << port_ << std::endl;
 }
 
