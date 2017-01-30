@@ -24,15 +24,15 @@ server_process = subprocess.Popen(['./lightning', 'simple_config'])
 # TODO: Use Python unit test frameworks + logging libraries
 print('DEBUG: Lightning server started!')
 
-original_request = b'GET / HTTP/1.1\r\nHost: localhost:8080\r\nUser-Agent: HTTPie/0.9.8\r\nAccept-Encoding: gzip, deflate\r\nAccept: */*\r\nConnection: keep-alive\r\n\r\n'
-completed_request = run(['http', 'localhost:8080'], stdout=subprocess.PIPE)
+expected_response = b'GET / HTTP/1.1\r\nHost: localhost:8080\r\nUser-Agent: HTTPie/0.9.8\r\nAccept-Encoding: gzip, deflate\r\nAccept: */*\r\nConnection: keep-alive\r\n\r\n'
+actual_response = run(['http', 'localhost:8080'], stdout=subprocess.PIPE)
 
-if (completed_request.returncode != 0):
+if (actual_response.returncode != 0):
     print('FAILED: httpie encountered an error')
 
-if (completed_request.stdout != original_request):
+if (actual_response.stdout != expected_response):
     print('FAILED: httpie received a non-matching echo response')
-    print('Completed request: \n%s' % completed_request.stdout.decode('UTF-8'))
+    print('Completed request: \n%s' % actual_response.stdout.decode('UTF-8'))
 
 print('SUCCESS: HTTPie request echo')
 
