@@ -9,8 +9,3 @@ TEST(TestTests, FirstTest) {
     << "This should succeed!";
 }
 
-TEST(TestTests, SecondTest) {
-  EXPECT_EQ(1, 2)
-    << "This should fail, seeing this message is good!";
-}
-

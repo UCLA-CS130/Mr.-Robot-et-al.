@@ -36,10 +36,8 @@ $(TESTS):
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LIB_FLAGS) -o $(TESTS)
 
 test: $(TARGET) $(TESTS)
-	$(info ${\n}~~~~~~~~~~ Starting integration test. ~~~~~~~~~~${\n})
-	python lightning_integration_test.py
-	$(info ~~~~~~~~~~ Integration test successful, starting unit tests. ~~~~~~~~~~${\n})
 	./$(TESTS)
+	python3 lightning_integration_test.py
 
 clean:
 	$(RM) $(TARGET) $(TESTS) *.o *.a
