@@ -1,15 +1,13 @@
 #include "config_parser.h"
+#include "echo_request_handler.h"
 #include "lightning_server.h"
 
-#include <array>
 #include <iostream>
-#include <string>
 
 // TODO: Refine debug output
 // TODO: Namespacing
 // TODO: Handle errors
 // TODO: Update integration test script
-const int MAX_REQ_SIZE = 8192;
 
 LightningServer::LightningServer(const char* file_name)
   : io_service_(),
@@ -35,30 +33,18 @@ void LightningServer::start() {
 
   for (;;) {
     // Accept connection request
-    boost::asio::ip::tcp::socket socket(io_service_);
-    acceptor_.accept(socket);
+    boost::shared_ptr<boost::asio::ip::tcp::socket>
+        socket(new boost::asio::ip::tcp::socket(io_service_));
+    acceptor_.accept(*socket);
 
-    // Read in request
-    char request_buffer[MAX_REQ_SIZE];
-    boost::system::error_code ec;
-    std::size_t bytes_read = socket.read_some(boost::asio::buffer(request_buffer), ec);
-    std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
+    // Read in request and construct echo response in EchoRequestHandler
+    EchoRequestHandler* erh = new EchoRequestHandler(socket);
+    char* response = erh->constructEcho();
 
-    // Create response
-    // Echo connection request, pasting in the request after headers,
-    // then the double CRLF at the bottom
-    const std::string res_header = "HTTP/1.1 200 OK\nContent-Type: text/plain\n\n";
-    std::size_t header_size = res_header.size();
-    std::size_t res_size = header_size + bytes_read;
+    // Write request to socket
+    boost::asio::write(*socket,
+                      boost::asio::buffer(response, erh->getResponseSize()));
 
-    char response_buffer[res_size+1];
-    res_header.copy(response_buffer, header_size);
-    std::memcpy(&response_buffer[header_size], request_buffer, bytes_read);
-    response_buffer[res_size] = '\0';
-
-    std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << response_buffer << std::endl;
-    boost::asio::write(socket,
-                      boost::asio::buffer(response_buffer, res_size));
-
+    delete erh;
   }
 }
