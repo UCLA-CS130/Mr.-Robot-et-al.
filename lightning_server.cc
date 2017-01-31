@@ -1,8 +1,8 @@
 #include "config_parser.h"
-#include "request_handlers.h"
 #include "lightning_server.h"
 #include "request_handlers.h"
 #include "server_config.h"
+#include "request_handlers.h"
 
 #include <iostream>
 
