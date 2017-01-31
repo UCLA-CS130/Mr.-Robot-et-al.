@@ -4,6 +4,8 @@
 #include "config_parser.h"
 #include <boost/asio.hpp>
 
+const int MAX_REQ_SIZE = 8192; // bytes
+
 class LightningServer {
   public:
     LightningServer(const char* file_name);

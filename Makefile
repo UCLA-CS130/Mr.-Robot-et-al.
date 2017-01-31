@@ -1,10 +1,9 @@
 # Based on example Makefile:
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
-
 MAKEOPTS = "-j 2"
 
 CXX = g++
-SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra
+SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra -Werror
 LDFLAGS = -lpthread -lboost_system
 
 PARSER_PATH = ./nginx-configparser/
@@ -16,7 +15,7 @@ GTEST_FLAGS = -isystem ${GTEST_DIR}/include
 
 TARGET = lightning
 TESTS = lightning_server_test
-SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc
+SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc request_handlers.cc
 
 all: $(TARGET)
 
