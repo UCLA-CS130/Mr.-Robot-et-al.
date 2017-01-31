@@ -3,7 +3,7 @@
 MAKEOPTS = "-j 2"
 
 CXX = g++
-SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra
+SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra -Werror
 LDFLAGS = -lpthread -lboost_system
 
 PARSER_PATH = ./nginx-configparser/
