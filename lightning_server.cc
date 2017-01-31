@@ -17,7 +17,6 @@ LightningServer::LightningServer(const char* file_name)
   std::cout << config_.ToString() << std::endl;
   ServerConfig SC(config_);
   port_ = SC.propertyLookUp("port");
-  // port_ = config_.statements_[0]->child_block_->statements_[0]->tokens_[1];
   std::cout << port_ << std::endl;
 }
 

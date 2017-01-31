@@ -6,7 +6,7 @@
 
 class ServerConfig {
   public:
-    ServerConfig(NginxConfig config);
+  	ServerConfig(NginxConfig config);
     ~ServerConfig();
     std::string propertyLookUp(std::string propertyName);
 
