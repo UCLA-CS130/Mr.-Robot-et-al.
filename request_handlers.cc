@@ -15,10 +15,16 @@ char* request_handlers::echoRequestHandler(boost::shared_ptr<tcp::socket> socket
                                            size_t& response_buffer_size) {
   // Read in request
   char request_buffer[MAX_REQ_SIZE];
-  // TODO: Handle socket-read error
   boost::system::error_code ec;
   std::size_t bytes_read = socket->read_some(boost::asio::buffer(request_buffer), ec);
-  std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
+  switch (ec.value()) {
+    case boost::system::errc::success:
+      std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
+      break;
+    default:
+      std::cout << "Error reading from socket, code: " << ec << std::endl;
+      return nullptr;
+  }
 
   // Create response, defaulting to 200 OK status code for now
   const std::string response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
