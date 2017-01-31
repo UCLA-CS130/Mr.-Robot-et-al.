@@ -1,13 +1,12 @@
 #include "config_parser.h"
-#include "request_handlers.h"
 #include "lightning_server.h"
+#include "request_handlers.h"
 
 #include <iostream>
 
 // TODO: Refine debug output
 // TODO: Namespacing
 // TODO: Handle errors
-// TODO: Update integration test script
 
 LightningServer::LightningServer(const char* file_name)
   : io_service_(),

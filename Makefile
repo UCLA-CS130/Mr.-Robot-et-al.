@@ -1,6 +1,5 @@
 # Based on example Makefile:
 # https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
-
 MAKEOPTS = "-j 2"
 
 CXX = g++

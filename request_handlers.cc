@@ -1,16 +1,17 @@
 #include "request_handlers.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
+using boost::asio::ip::tcp;
 using namespace lightning_server;
 
-const int MAX_REQ_SIZE = 8192;
+const int MAX_REQ_SIZE = 8192; // bytes
 
 // Read in the request from the socket used to construct the handler, then
 // fill the response buffer with the necessary headers followed by the
 // original request.
-size_t request_handlers::echoRequestHandler(boost::shared_ptr<bai::tcp::socket> socket) {
+size_t request_handlers::echoRequestHandler(boost::shared_ptr<tcp::socket> socket) {
 
   // Read in request
   char request_buffer[MAX_REQ_SIZE];
