@@ -13,4 +13,6 @@ addons:
       - libboost-all-dev
       - httpie
 
+before_script: ./install-dependencies.sh
+
 script: make && make test && make clean
