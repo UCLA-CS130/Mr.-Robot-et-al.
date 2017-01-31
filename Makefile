@@ -16,7 +16,7 @@ GTEST_FLAGS = -isystem ${GTEST_DIR}/include
 
 TARGET = lightning
 TESTS = lightning_server_test
-SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc echo_request_handler.cc
+SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc request_handlers.cc
 
 all: $(TARGET)
 

@@ -1,5 +1,5 @@
 #include "config_parser.h"
-#include "echo_request_handler.h"
+#include "request_handlers.h"
 #include "lightning_server.h"
 
 #include <iostream>
@@ -31,20 +31,16 @@ void LightningServer::start() {
   acceptor_.bind(endpoint);
   acceptor_.listen();
 
+  // Lightning listening loop
   for (;;) {
     // Accept connection request
     boost::shared_ptr<boost::asio::ip::tcp::socket>
         socket(new boost::asio::ip::tcp::socket(io_service_));
     acceptor_.accept(*socket);
 
-    // Read in request and construct echo response in EchoRequestHandler
-    EchoRequestHandler* erh = new EchoRequestHandler(socket);
-    char* response = erh->constructEcho();
-
-    // Write request to socket
-    boost::asio::write(*socket,
-                      boost::asio::buffer(response, erh->getResponseSize()));
-
-    delete erh;
+    // Read in request and handle echo response in echoRequestHandler,
+    // returning the number of bytes written back out to the socket.
+    size_t bytes_written = lightning_server::request_handlers::echoRequestHandler(socket);
+    std::cout << "Bytes written: " << bytes_written << std::endl;
   }
 }
