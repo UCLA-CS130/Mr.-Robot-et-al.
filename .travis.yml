@@ -14,7 +14,7 @@ addons:
       - httpie
 
 before_script: 
-  - chmod 744 configure.sh
+  - chmod 755 configure.sh
   - ./configure.sh
 
 script: make && make test && make clean
