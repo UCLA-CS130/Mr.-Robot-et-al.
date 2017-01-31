@@ -4,8 +4,8 @@
 
 #include <iostream>
 
-// TODO: Refine debug output
-// TODO: Namespacing
+using namespace lightning_server;
+
 // TODO: Handle errors
 
 LightningServer::LightningServer(const char* file_name)
@@ -18,9 +18,7 @@ LightningServer::LightningServer(const char* file_name)
   std::cout << port_ << std::endl;
 }
 
-LightningServer::~LightningServer() {
-  // TODO
-}
+LightningServer::~LightningServer() {}
 
 void LightningServer::start() {
   // Setup server to listen for TCP connection on config file specified port
@@ -39,7 +37,20 @@ void LightningServer::start() {
 
     // Read in request and handle echo response in echoRequestHandler,
     // returning the number of bytes written back out to the socket.
-    size_t bytes_written = lightning_server::request_handlers::echoRequestHandler(socket);
-    std::cout << "Bytes written: " << bytes_written << std::endl;
+
+    char response_buffer[MAX_REQ_SIZE];
+    size_t response_size = 0;
+
+    char* response = request_handlers::echoRequestHandler(socket,
+                                                          response_buffer,
+                                                          response_size);
+    if (response == nullptr) {
+      std::cout << "ERROR: echoRequestHandler failed!" << std::endl;
+      return;
+    }
+
+    // Write back response
+    boost::asio::write(*socket,
+                       boost::asio::buffer(response_buffer, response_size));
   }
 }

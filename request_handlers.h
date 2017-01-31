@@ -6,9 +6,14 @@
 using boost::asio::ip::tcp;
 
 namespace lightning_server {
+  // All request handlers return a pointer to the response buffer
+  // to be written back to the client.
   namespace request_handlers {
-    size_t echoRequestHandler(boost::shared_ptr<tcp::socket> socket);
-  } // namespace request_handlers
-} // namespace lightning_server
+    // Echo the request that was received
+    char* echoRequestHandler(boost::shared_ptr<tcp::socket> socket,
+                             char* response_buffer,
+                             size_t& response_buffer_size);
+  }
+}
 
 #endif
