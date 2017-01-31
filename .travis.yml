@@ -1,8 +1,16 @@
+# Ubuntu 14.04 to use newer Boost version
 os:
-    - linux
+  - linux
+dist: trusty
 sudo: required
+
 compiler:
-    - gcc
-before_install:
-    - sudo apt-get install libboost-all-dev
+  - gcc
+
+addons:
+  apt:
+    packages:
+      - libboost-all-dev
+      - httpie
+
 script: make && make test && make clean
