@@ -6,14 +6,14 @@
 
 class ServerConfig {
   public:
-  	ServerConfig(NginxConfig config);
+    ServerConfig(NginxConfig config);
     ~ServerConfig();
     std::string propertyLookUp(std::string propertyName);
 
   private:
-  	void printPropertiesMap();
-  	void fillOutMap(NginxConfig config);
-  	std::unordered_map<std::string,std::string> property_to_values_;
+    void printPropertiesMap();
+    void fillOutMap(NginxConfig config);
+    std::unordered_map<std::string,std::string> property_to_values_;
 };
 
 #endif
