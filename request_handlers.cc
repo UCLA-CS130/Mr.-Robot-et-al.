@@ -34,7 +34,7 @@ char* request_handlers::echoRequestHandler(boost::shared_ptr<tcp::socket> socket
   response_header.copy(response_buffer, header_size);
   std::memcpy(&response_buffer[header_size], request_buffer, bytes_read);
   std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << response_buffer << std::endl;
-
+  
   response_buffer_size = response_size;
   return response_buffer;
 }
