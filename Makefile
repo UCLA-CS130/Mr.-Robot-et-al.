@@ -35,7 +35,6 @@ $(TESTS):
 	# Build our own tests, using GTest
 	# TODO: Figure out how to name multiple CC and produce corresponding object for each
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(PARSER_PATH)config_parser.cc server_config.cc $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
-	# $(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) request_handlers.cc request_handlers_test.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o request_handlers_test
 
 integration_test: $(TARGET) $(TESTS)
@@ -48,4 +47,4 @@ integration_test: $(TARGET) $(TESTS)
 	pkill $(TARGET)
 
 clean:
-	$(RM) $(TARGET) $(TESTS) *.o *.a *.gcov *.gcno *.gcda -r test_coverage*
+	$(RM) $(TARGET) $(TESTS) *.o *.a *.gcov *.gcno *.gcda -r test_coverage* request_handlers_test
