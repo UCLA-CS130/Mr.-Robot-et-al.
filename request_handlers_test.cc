@@ -24,6 +24,38 @@ protected:
   }
 };
 
+TEST_F(RequestHandlersTest, EmptyStringTest) {
+  char request_buffer[MAX_REQ_SIZE];
+
+  // Customize message in request buffer
+  strcpy(request_buffer, "");
+
+  // Handle echo response in external handler
+  char response_buffer[MAX_REQ_SIZE];
+  size_t response_size = 0;
+
+  EXPECT_TRUE(HandleRequest(request_buffer, response_buffer, response_size))
+    << "HandleRequest should return true";
+  EXPECT_EQ(response_size, 45)
+    << "Response size should only be header size";
+}
+
+TEST_F(RequestHandlersTest, RandomStringTest) {
+  char request_buffer[MAX_REQ_SIZE];
+
+  // Customize message in request buffer
+  strcpy(request_buffer, "abcd\n");
+
+  // Handle echo response in external handler
+  char response_buffer[MAX_REQ_SIZE];
+  size_t response_size = 5;
+
+  EXPECT_TRUE(HandleRequest(request_buffer, response_buffer, response_size))
+    << "HandleRequest should return true";
+  EXPECT_EQ(response_size, 50)
+    << "Response size should only be header size plus initial request buffer";
+}
+
 TEST_F(RequestHandlersTest, SimpleTest) {
   char request_buffer[MAX_REQ_SIZE];
 
@@ -38,10 +70,14 @@ TEST_F(RequestHandlersTest, SimpleTest) {
 
   // Handle echo response in external handler
   char response_buffer[MAX_REQ_SIZE];
-  size_t response_size = strlen(request_buffer);
+  size_t response_size = 292;
 
-  EXPECT_TRUE(HandleRequest(request_buffer, response_buffer, response_size));
+  EXPECT_TRUE(HandleRequest(request_buffer, response_buffer, response_size))
+    << "HandleRequest should return true";
+  EXPECT_EQ(response_size, 292+45)
+    << "Response size should be initial request buffer size plus header size";
 }
+
 
 TEST_F(RequestHandlersTest, OutputWithHeader) {
   char request_buffer[MAX_REQ_SIZE];
@@ -69,20 +105,7 @@ TEST_F(RequestHandlersTest, OutputWithHeader) {
           "text/html,application/xhtml+xml,application/xml;"
           "q=0.9,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\n"
           "Accept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\n\r\n");
-  size_t test_response_size = 292 + 45;
   HandleRequest(request_buffer, response_buffer, response_size);
-  std::cout << "DEBUG DEBUG DEBUG" << std::endl;
-  std::cout << response_size << std::endl;
-  for(size_t i = 0; response_buffer[i] != '\0'; i++)
-  {
-     printf("%c", response_buffer[i]);
-  }
-  std::cout << "TRUE TRUE TRUE" << std::endl;
-  std::cout << test_response_size << std::endl;
-  for(size_t i = 0; test_response_buffer[i] != '\0'; i++)
-  {
-     printf("%c", test_response_buffer[i]);
-  }
-  EXPECT_EQ(test_response_buffer, response_buffer);
-  EXPECT_EQ(test_response_size, response_size);
+  EXPECT_STREQ(test_response_buffer, response_buffer)
+    << "response_buffer should be the same string as test_response_buffer";
 }
