@@ -12,5 +12,6 @@ addons:
     packages:
       - libboost-all-dev
       - httpie
+      - lcov
 
 script: make && make test && make clean
