@@ -21,9 +21,11 @@ void ServerConfig::fillOutMap(NginxConfig config) {
       fillOutMap(*(config.statements_[i]->child_block_));
     }
 
-    property = config.statements_[i]->tokens_[0];
+    if (config.statements_[i]->tokens_.size() >= 1) {
+      property = config.statements_[i]->tokens_[0];
+    }
 
-    if (config.statements_[i]->child_block_ == nullptr) {
+    if (config.statements_[i]->tokens_.size() >= 2) {
       value = config.statements_[i]->tokens_[1];
     }
 
