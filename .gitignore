@@ -3,6 +3,8 @@
 
 # Project Files
 lightning
+lightning_server_test
+server_config_test
 
 # Prerequisites
 *.d
