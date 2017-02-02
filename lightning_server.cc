@@ -34,26 +34,31 @@ void LightningServer::start() {
   // Lightning listening loop
   for (;;) {
     // Accept connection request
-    boost::shared_ptr<boost::asio::ip::tcp::socket>
-        socket(new boost::asio::ip::tcp::socket(io_service_));
-    acceptor_.accept(*socket);
+    boost::asio::ip::tcp::socket socket(io_service_);
+    acceptor_.accept(socket);
 
-    // Read in request and handle echo response in echoRequestHandler,
-    // returning the number of bytes written back out to the socket.
-
-    char response_buffer[MAX_REQ_SIZE];
-    size_t response_size = 0;
-
-    char* response = request_handlers::echoRequestHandler(socket,
-                                                          response_buffer,
-                                                          response_size);
-    if (response == nullptr) {
-      std::cout << "ERROR: echoRequestHandler failed!" << std::endl;
-      return;
+    // Read in request
+    char request_buffer[MAX_REQ_SIZE];
+    boost::system::error_code ec;
+    std::size_t bytes_read = socket.read_some(boost::asio::buffer(request_buffer), ec);
+    switch (ec.value()) {
+      case boost::system::errc::success:
+        std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
+        break;
+      default:
+        std::cout << "Error reading from socket, code: " << ec << std::endl;
+        continue;
     }
 
+    // Handle echo response in external handler
+    char response_buffer[MAX_REQ_SIZE];
+    size_t response_size = bytes_read;
+    request_handlers::echoRequestHandler(request_buffer,
+                                         response_buffer,
+                                         response_size);
+
     // Write back response
-    boost::asio::write(*socket,
+    boost::asio::write(socket,
                        boost::asio::buffer(response_buffer, response_size));
   }
 }
