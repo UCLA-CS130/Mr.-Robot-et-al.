@@ -9,7 +9,7 @@ LDFLAGS = -lpthread -lboost_system
 PARSER_PATH = ./nginx-configparser/
 GTEST_DIR = nginx-configparser/googletest/googletest
 GTEST_FLAGS = -isystem ${GTEST_DIR}/include
-TEST_COV = -fprofile-arcs -ftest-coverage
+TEST_COV = --coverage # --coverage is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and-lgcov(linking).
 
 # TODO: Split out dependency handling so that we can avoid rebuilding
 .PHONY: $(TARGET) $(TESTS) all test integration_test clean
@@ -39,8 +39,10 @@ $(TESTS):
 integration_test: $(TARGET) $(TESTS)
 	./$(TESTS)
 	./$(TARGET) simple_config &
+	lcov -t "Lightning Coverage" -o test_coverage.info -c -d .
+	genhtml -o test_coverage test_coverage.info
 	python3 lightning_integration_test.py
 	pkill $(TARGET)
 
 clean:
-	$(RM) $(TARGET) $(TESTS) *.o *.a *.gcov *.gcno *.gcda
+	$(RM) $(TARGET) $(TESTS) *.o *.a *.gcov *.gcno *.gcda -r test_coverage*
