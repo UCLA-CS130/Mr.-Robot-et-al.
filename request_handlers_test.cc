@@ -1,7 +1,5 @@
-#include "request_handlers.h"
 #include "gtest/gtest.h"
-
-#include <iostream>
+#include "request_handlers.h"
 
 using namespace lightning_server;
 
@@ -9,7 +7,6 @@ const int MAX_REQ_SIZE = 8192; // bytes
 
 class RequestHandlersTest : public ::testing::Test {
 protected:
-  // Helper method to pass arbitrary strings into the parser
   bool HandleRequest(char* request_buffer,
                      char* response_buffer,
                      size_t& response_buffer_size) {
@@ -18,7 +15,8 @@ protected:
                                          response_buffer_size);
     if (response_buffer == nullptr) {
       return false;
-    } else {
+    }
+    else {
       return true;
     }
   }
