@@ -25,9 +25,19 @@ TEST_F(ServerConfigTest, NoPortConfig) {
     EXPECT_EQ("", server_config->propertyLookUp("port"));
 }
 
+TEST_F(ServerConfigTest, PortNumberMissing) {
+    std::unique_ptr<ServerConfig> server_config = ParseString("listen;");
+    EXPECT_EQ("", server_config->propertyLookUp("port"));
+}
+
 TEST_F(ServerConfigTest, PortPropertyOnly) {
     std::unique_ptr<ServerConfig> server_config = ParseString("listen 1234;");
     EXPECT_EQ("1234", server_config->propertyLookUp("port"));
+}
+
+TEST_F(ServerConfigTest, NestedPortNumberMissing) {
+    std::unique_ptr<ServerConfig> server_config = ParseString("server { listen; }");
+    EXPECT_EQ("", server_config->propertyLookUp("port"));
 }
 
 TEST_F(ServerConfigTest, NonsenseProperty) {
