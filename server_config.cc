@@ -20,7 +20,7 @@ void ServerConfig::fillOutMap(NginxConfig config) {
     if (config.statements_[i]->child_block_ != nullptr) {
       fillOutMap(*(config.statements_[i]->child_block_));
     }
-    
+
     property = config.statements_[i]->tokens_[0];
 
     if (config.statements_[i]->child_block_ == nullptr) {
@@ -42,5 +42,14 @@ void ServerConfig::printPropertiesMap() {
 }
 
 std::string ServerConfig::propertyLookUp(std::string propertyName) {
-  return property_to_values_[propertyName];
+  // unordered_map::at(key) throws if key not found.
+  // unordered_map::operator[key] will silently create that entry
+  // See: http://www.cplusplus.com/reference/unordered_map/unordered_map/operator[]/
+  // and: http://www.cplusplus.com/reference/stdexcept/out_of_range/
+  try {
+    return property_to_values_.at(propertyName);
+  }
+  catch (const std::out_of_range& oor) {
+    return "";
+  }
 }
