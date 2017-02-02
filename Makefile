@@ -25,12 +25,17 @@ $(TARGET): $(SRC)
 # TODO: Generalize for multiple unit tests
 # TODO: These assume compilation on LINUX, so we need to add an OS check
 $(TESTS):
+	# Build and link GTest
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) -I${GTEST_DIR} -c ${GTEST_DIR}/src/gtest-all.cc
 	ar -rv libgtest.a gtest-all.o
+	# Build our own tests, using GTest
+	# TODO: Figure out how to name multiple CC and produce corresponding object for each
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
 
+# TODO: Check if lighting
 test: $(TARGET) $(TESTS)
 	./$(TESTS)
+	./$(TARGET) simple_config &
 	python3 lightning_integration_test.py
 
 clean:

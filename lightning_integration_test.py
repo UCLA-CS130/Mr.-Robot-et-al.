@@ -6,16 +6,6 @@ from subprocess import run
 
 print("\nSTART Lightning integration tests\n")
 
-# make -s suppresses output of commands as make executes them
-# subprocess.run returns a CompletedProcess object
-if (
-    run(['make', '-s', 'clean']).returncode != 0 or
-    run(['make', '-s']).returncode != 0
-   ):
-    print('FAILED: Build with make failed!')
-
-print('SUCCESS: make clean and make')
-
 # Test echoing
 # Try a background fork/thread
 server_process = subprocess.Popen(['./lightning', 'simple_config'])
