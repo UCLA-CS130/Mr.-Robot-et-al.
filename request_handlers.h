@@ -10,9 +10,9 @@ namespace lightning_server {
   // to be written back to the client.
   namespace request_handlers {
     // Echo the request that was received
-    char* echoRequestHandler(boost::shared_ptr<tcp::socket> socket,
-                             char* response_buffer,
-                             size_t& response_buffer_size);
+    void echoRequestHandler(char* request_buffer,
+                            char* response_buffer,
+                            size_t& response_buffer_size);
   }
 }
 
