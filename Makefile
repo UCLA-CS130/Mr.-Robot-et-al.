@@ -14,7 +14,7 @@ GTEST_FLAGS = -isystem ${GTEST_DIR}/include
 .PHONY: $(TARGET) $(TESTS) all test clean
 
 TARGET = lightning
-TESTS = lightning_server_test
+TESTS = server_config_test
 SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc server_config.cc request_handlers.cc
 
 all: $(TARGET)
@@ -30,13 +30,13 @@ $(TESTS):
 	ar -rv libgtest.a gtest-all.o
 	# Build our own tests, using GTest
 	# TODO: Figure out how to name multiple CC and produce corresponding object for each
-	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
+	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(PARSER_PATH)config_parser.cc server_config.cc $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
 
-# TODO: Check if lighting
 test: $(TARGET) $(TESTS)
 	./$(TESTS)
 	./$(TARGET) simple_config &
 	python3 lightning_integration_test.py
+	pkill $(TARGET)
 
 clean:
 	$(RM) $(TARGET) $(TESTS) *.o *.a
