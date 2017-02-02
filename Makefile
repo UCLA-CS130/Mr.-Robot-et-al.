@@ -35,15 +35,15 @@ $(TESTS):
 	# Build our own tests, using GTest
 	# TODO: Figure out how to name multiple CC and produce corresponding object for each
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(PARSER_PATH)config_parser.cc server_config.cc $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
-	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
+	# $(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) request_handlers.cc request_handlers_test.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o request_handlers_test
 
 integration_test: $(TARGET) $(TESTS)
 	./$(TESTS)
+	./request_handlers_test
 	./$(TARGET) simple_config &
 	lcov -t "Lightning Coverage" -o test_coverage.info -c -d .
 	genhtml -o test_coverage test_coverage.info
-	./request_handlers_test
 	python3 lightning_integration_test.py
 	pkill $(TARGET)
 
