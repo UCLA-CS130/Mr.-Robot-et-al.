@@ -9,7 +9,7 @@ using boost::asio::ip::tcp;
 // Read in the request from the socket used to construct the handler, then
 // fill the response buffer with the necessary headers followed by the
 // original request.
-void EchoRequestHandler::handle_request(const char* request_buffer,
+void EchoRequestHandler::handleRequest(const char* request_buffer,
                                         const size_t& request_buffer_size,
                                         char* &response_buffer,
                                         size_t& response_buffer_size) {
@@ -30,10 +30,10 @@ void EchoRequestHandler::handle_request(const char* request_buffer,
   std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << response_buffer << std::endl;
 }
 
-void request_handlers::staticServeRequestHandler(const char* request_buffer,
-                                                 const size_t& request_buffer_size,
-                                                 char* &response_buffer,
-                                                 size_t& response_buffer_size) {
+void StaticRequestHandler::handleRequest(const char* request_buffer,
+                                          const size_t& request_buffer_size,
+                                          char* &response_buffer,
+                                          size_t& response_buffer_size) {
 
   // TODO: Parse request to get path to file
   // TODO: Check integrity of path

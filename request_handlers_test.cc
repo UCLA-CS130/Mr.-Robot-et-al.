@@ -1,8 +1,6 @@
 #include "gtest/gtest.h"
 #include "request_handlers.h"
 
-using namespace lightning_server;
-
 class RequestHandlersTest : public ::testing::Test {
 protected:
   const size_t header_size = 45;
@@ -11,10 +9,11 @@ protected:
                      char* &response_buffer,
                      size_t& response_buffer_size) {
 
-    request_handlers::echoRequestHandler(request_buffer,
-                                         request_buffer_size,
-                                         response_buffer,
-                                         response_buffer_size);
+    EchoRequestHandler echo_request_handler;
+    echo_request_handler.handleRequest(request_buffer,
+                                       request_buffer_size,
+                                       response_buffer,
+                                       response_buffer_size);
     if (response_buffer == nullptr) {
       return false;
     }

@@ -54,13 +54,13 @@ void LightningServer::start() {
     size_t response_buffer_size  = 0;
 
     EchoRequestHandler echo_request_handler;
-    echo_request_handler.handle_request(request_buffer,
+    echo_request_handler.handleRequest(request_buffer,
                                         request_buffer_size,
                                         response_buffer,
                                         response_buffer_size);
 
     // Write back response
     boost::asio::write(socket,
-                       boost::asio::buffer(response_buffer, response_size));
+                       boost::asio::buffer(response_buffer, response_buffer_size));
   }
 }
