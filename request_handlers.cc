@@ -20,7 +20,8 @@ void EchoRequestHandler::handle_request(const char* request_buffer,
   response_buffer_size = header_size + request_buffer_size;
 
   // TODO: need to check if we need to resize response buffer, if response is huge
-  response_buffer = (char *) malloc(sizeof(char) * response_buffer_size);
+  response_buffer = new char[response_buffer_size];
+
   response_header.copy(response_buffer, header_size);
   std::memcpy(&response_buffer[header_size], request_buffer, request_buffer_size);
 
@@ -29,7 +30,7 @@ void EchoRequestHandler::handle_request(const char* request_buffer,
 
 void request_handlers::staticServeRequestHandler(const char* request_buffer,
                                                  const size_t& request_buffer_size,
-                                                 char* response_buffer,
+                                                 char* &response_buffer,
                                                  size_t& response_buffer_size) {
 
   // TODO: Parse request to get path to file
