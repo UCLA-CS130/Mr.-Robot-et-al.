@@ -39,6 +39,7 @@ void LightningServer::start() {
     char request_buffer[MAX_REQ_SIZE];
     boost::system::error_code ec;
     std::size_t request_buffer_size = socket.read_some(boost::asio::buffer(request_buffer), ec);
+
     switch (ec.value()) {
       case boost::system::errc::success:
         std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
@@ -49,14 +50,14 @@ void LightningServer::start() {
     }
 
     // Handle echo response in external handler
-    char* response_buffer;
-    size_t response_size = request_buffer_size;
-    
+    char* response_buffer = nullptr;
+    size_t response_buffer_size  = 0;
+
     EchoRequestHandler echo_request_handler;
     echo_request_handler.handle_request(request_buffer,
                                         request_buffer_size,
                                         response_buffer,
-                                        response_size);
+                                        response_buffer_size);
 
     // Write back response
     boost::asio::write(socket,
