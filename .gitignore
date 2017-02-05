@@ -6,6 +6,9 @@ lightning
 lightning_server_test
 server_config_test
 
+# Debugging Symbols
+*.dSYM*
+
 # Prerequisites
 *.d
 

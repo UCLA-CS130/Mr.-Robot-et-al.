@@ -6,8 +6,6 @@
 
 #include <iostream>
 
-using namespace lightning_server;
-
 // TODO: Handle errors
 
 LightningServer::LightningServer(const char* file_name)
@@ -40,7 +38,8 @@ void LightningServer::start() {
     // Read in request
     char request_buffer[MAX_REQ_SIZE];
     boost::system::error_code ec;
-    std::size_t bytes_read = socket.read_some(boost::asio::buffer(request_buffer), ec);
+    std::size_t request_buffer_size = socket.read_some(boost::asio::buffer(request_buffer), ec);
+
     switch (ec.value()) {
       case boost::system::errc::success:
         std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
@@ -51,14 +50,21 @@ void LightningServer::start() {
     }
 
     // Handle echo response in external handler
-    char response_buffer[MAX_REQ_SIZE];
-    size_t response_size = bytes_read;
-    request_handlers::echoRequestHandler(request_buffer,
-                                         response_buffer,
-                                         response_size);
+    char* response_buffer = nullptr;
+    size_t response_buffer_size  = 0;
+
+    EchoRequestHandler echo_request_handler;
+    echo_request_handler.handleRequest(request_buffer,
+                                       request_buffer_size,
+                                       response_buffer,
+                                       response_buffer_size);
+
+    // TODO: Use-after-free vulnerability if response_buffer is used after
+    // EchoRequestHandler is out of scope
 
     // Write back response
     boost::asio::write(socket,
-                       boost::asio::buffer(response_buffer, response_size));
+                       boost::asio::buffer(response_buffer, response_buffer_size));
+    delete response_buffer;
   }
 }
