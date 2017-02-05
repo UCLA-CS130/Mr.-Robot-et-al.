@@ -10,9 +10,9 @@ using boost::asio::ip::tcp;
 // fill the response buffer with the necessary headers followed by the
 // original request.
 void EchoRequestHandler::handleRequest(const char* request_buffer,
-                                        const size_t& request_buffer_size,
-                                        char* &response_buffer,
-                                        size_t& response_buffer_size) {
+                                       const size_t& request_buffer_size,
+                                       char* &response_buffer,
+                                       size_t& response_buffer_size) {
 
   // Create response, defaulting to 200 OK status code for now
   const std::string response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
@@ -31,9 +31,9 @@ void EchoRequestHandler::handleRequest(const char* request_buffer,
 }
 
 void StaticRequestHandler::handleRequest(const char* request_buffer,
-                                          const size_t& request_buffer_size,
-                                          char* &response_buffer,
-                                          size_t& response_buffer_size) {
+                                         const size_t& request_buffer_size,
+                                         char* &response_buffer,
+                                         size_t& response_buffer_size) {
 
   // TODO: Parse request to get path to file
   // TODO: Check integrity of path

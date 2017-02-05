@@ -55,12 +55,16 @@ void LightningServer::start() {
 
     EchoRequestHandler echo_request_handler;
     echo_request_handler.handleRequest(request_buffer,
-                                        request_buffer_size,
-                                        response_buffer,
-                                        response_buffer_size);
+                                       request_buffer_size,
+                                       response_buffer,
+                                       response_buffer_size);
+
+    // TODO: Use-after-free vulnerability if response_buffer is used after
+    // EchoRequestHandler is out of scope
 
     // Write back response
     boost::asio::write(socket,
                        boost::asio::buffer(response_buffer, response_buffer_size));
+    delete response_buffer;
   }
 }
