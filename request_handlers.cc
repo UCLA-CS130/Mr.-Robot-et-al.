@@ -22,8 +22,10 @@ void EchoRequestHandler::handle_request(const char* request_buffer,
   // TODO: need to check if we need to resize response buffer, if response is huge
   response_buffer = new char[response_buffer_size];
 
+  // Copy in headers, the original request, and a terminating nullbyte
   response_header.copy(response_buffer, header_size);
   std::memcpy(&response_buffer[header_size], request_buffer, request_buffer_size);
+  std::memcpy(&response_buffer[header_size + request_buffer_size], "\0", 1);
 
   std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << response_buffer << std::endl;
 }
