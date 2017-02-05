@@ -2,20 +2,41 @@
 #include "request_handlers.h"
 
 #include <cstddef>
+#include <fstream>
 
 class RequestHandlersTest : public ::testing::Test {
 protected:
+
   const size_t header_size = 45;
-  bool HandleRequest(const char* request_buffer,
-                     const size_t& request_buffer_size,
-                     char* &response_buffer,
-                     size_t& response_buffer_size) {
+
+  bool EchoHandleRequest(const char* request_buffer,
+                         const size_t& request_buffer_size,
+                         char* &response_buffer,
+                         size_t& response_buffer_size) {
 
     EchoRequestHandler echo_request_handler;
     echo_request_handler.handleRequest(request_buffer,
                                        request_buffer_size,
                                        response_buffer,
                                        response_buffer_size);
+    if (response_buffer == nullptr) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
+  bool StaticHandleRequest(const char* request_buffer,
+                           const size_t& request_buffer_size,
+                           char* &response_buffer,
+                           size_t& response_buffer_size) {
+
+    StaticRequestHandler static_request_handler;
+    static_request_handler.handleRequest(request_buffer,
+                                         request_buffer_size,
+                                         response_buffer,
+                                         response_buffer_size);
     if (response_buffer == nullptr) {
       return false;
     }
@@ -38,10 +59,10 @@ TEST_F(RequestHandlersTest, EmptyStringTest) {
     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
   const size_t expected_response_buffer_size = header_size + request_buffer_size;
 
-  ASSERT_TRUE(HandleRequest(request_buffer,
-                            request_buffer_size,
-                            response_buffer,
-                            response_buffer_size));
+  ASSERT_TRUE(EchoHandleRequest(request_buffer,
+                                request_buffer_size,
+                                response_buffer,
+                                response_buffer_size));
 
   EXPECT_EQ(response_buffer_size, expected_response_buffer_size)
     << "Response size should only be header size";
@@ -61,10 +82,10 @@ TEST_F(RequestHandlersTest, RandomStringTest) {
     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nabcd\n";
   const size_t expected_response_buffer_size = header_size + request_buffer_size;
 
-  ASSERT_TRUE(HandleRequest(request_buffer,
-                            request_buffer_size,
-                            response_buffer,
-                            response_buffer_size));
+  ASSERT_TRUE(EchoHandleRequest(request_buffer,
+                                request_buffer_size,
+                                response_buffer,
+                                response_buffer_size));
 
   EXPECT_EQ(response_buffer_size, expected_response_buffer_size)
     << "Response size should only be header size plus initial request buffer";
@@ -98,13 +119,89 @@ TEST_F(RequestHandlersTest, OutputWithHeader) {
     "Accept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\n\r\n";
   const size_t expected_response_buffer_size = header_size + request_buffer_size;
 
-  ASSERT_TRUE(HandleRequest(request_buffer,
-                            request_buffer_size,
-                            response_buffer,
-                            response_buffer_size));
+  ASSERT_TRUE(EchoHandleRequest(request_buffer,
+                                request_buffer_size,
+                                response_buffer,
+                                response_buffer_size));
 
   EXPECT_EQ(response_buffer_size, expected_response_buffer_size)
     << "Response size should be initial request buffer size plus header size";
   EXPECT_STREQ(test_response_buffer, response_buffer)
     << "response_buffer should be the same string as test_response_buffer";
 }
+
+TEST_F(RequestHandlersTest, HTMLTest) {
+  char request_buffer[] = "";
+  const size_t request_buffer_size = 0;
+
+  // The request_buffer is normally filled by a socket-read
+  // The response_buffer is allocated by the request-handler
+  char* response_buffer = nullptr;
+  size_t response_buffer_size = 0;
+
+  const char expected_response_buffer[] =
+    "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  const size_t expected_response_buffer_size = header_size + request_buffer_size;
+
+  // TODO: Need a way to diff two HTML files
+  // TODO: Need to convert string to char array to diff
+  std::ifstream in("static_test_files/index.html");
+  std::stringstream buffer;
+  buffer << in.rdbuf();
+  std::string contents(buffer.str());
+  std::cout << contents << std::endl;
+
+  ASSERT_TRUE(StaticHandleRequest(request_buffer,
+                                  request_buffer_size,
+                                  response_buffer,
+                                  response_buffer_size));
+}
+
+TEST_F(RequestHandlersTest, PNGTest) {
+  char request_buffer[] = "";
+  const size_t request_buffer_size = 0;
+
+  // The request_buffer is normally filled by a socket-read
+  // The response_buffer is allocated by the request-handler
+  char* response_buffer = nullptr;
+  size_t response_buffer_size = 0;
+
+  const char expected_response_buffer[] =
+    "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\n\r\n";
+  const size_t expected_response_buffer_size = header_size + request_buffer_size;
+
+  // TODO: Need a way to diff two images; most online resources
+  // say to use OpenCV
+  // TODO: Need to convert string to char array to diff
+  std::ifstream fin("static_test_files/angrybird.png", std::ios::binary);
+  std::ostringstream buffer;
+  buffer << fin.rdbuf();
+  std::string contents(buffer.str());
+  std::cout << contents << std::endl;
+
+  ASSERT_TRUE(StaticHandleRequest(request_buffer,
+                                  request_buffer_size,
+                                  response_buffer,
+                                  response_buffer_size));
+}
+
+TEST_F(RequestHandlersTest, GIFTest) {
+  char request_buffer[] = "";
+  const size_t request_buffer_size = 0;
+
+  // The request_buffer is normally filled by a socket-read
+  // The response_buffer is allocated by the request-handler
+  char* response_buffer = nullptr;
+  size_t response_buffer_size = 0;
+
+  const char expected_response_buffer[] =
+    "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n";
+  const size_t expected_response_buffer_size = header_size + request_buffer_size;
+
+  // TODO: Need a way to diff two GIFs
+  ASSERT_TRUE(StaticHandleRequest(request_buffer,
+                                  request_buffer_size,
+                                  response_buffer,
+                                  response_buffer_size));
+}
+

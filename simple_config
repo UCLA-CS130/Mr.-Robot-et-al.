@@ -6,12 +6,12 @@ server {
     }
 
     location /static1 {
-        root /home/files/cats;
+        root /test;
         action serve;
     }
 
     location /static2 {
-        root /home/files/birds;
+        root /test;
         action serve;
     }
 }
