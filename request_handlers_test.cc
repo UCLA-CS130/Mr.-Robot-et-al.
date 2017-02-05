@@ -32,7 +32,7 @@ TEST_F(RequestHandlersTest, EmptyStringTest) {
   char* response_buffer = nullptr;
   size_t response_buffer_size = 0;
 
-  char expected_response_buffer[] =
+  const char expected_response_buffer[] =
     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
   const size_t expected_response_buffer_size = header_size + request_buffer_size;
 
@@ -72,7 +72,7 @@ TEST_F(RequestHandlersTest, RandomStringTest) {
 
 
 TEST_F(RequestHandlersTest, OutputWithHeader) {
-  char request_buffer[] =
+  const char request_buffer[] =
     "GET / HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n"
     "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64;"
     " rv:44.0) Gecko/20100101 Firefox/44.0\r\nAccept: "
@@ -86,7 +86,7 @@ TEST_F(RequestHandlersTest, OutputWithHeader) {
   size_t response_buffer_size = 0;
 
   // Compare with the following:
-  char test_response_buffer[] =
+  const char test_response_buffer[] =
     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n"
     "GET / HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n"
     "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64;"

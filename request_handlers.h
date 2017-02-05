@@ -13,7 +13,6 @@ class RequestHandler {
                                const size_t& request_buffer_size,
                                char* &response_buffer,
                                size_t& response_buffer_size) = 0;
-  private:
 };
 
 class EchoRequestHandler : public RequestHandler {
@@ -23,7 +22,6 @@ class EchoRequestHandler : public RequestHandler {
                                const size_t& request_buffer_size,
                                char* &response_buffer,
                                size_t& response_buffer_size);
-  private:
 };
 
 class StaticRequestHandler : public RequestHandler {
@@ -33,7 +31,6 @@ class StaticRequestHandler : public RequestHandler {
                                const size_t& request_buffer_size,
                                char* &response_buffer,
                                size_t& response_buffer_size);
-  private:
 };
 
 #endif
