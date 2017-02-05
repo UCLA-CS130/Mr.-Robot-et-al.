@@ -15,7 +15,15 @@ LightningServer::LightningServer(const char* file_name)
   config_parser_.Parse(file_name, &config_);
   std::cout << config_.ToString() << std::endl;
   ServerConfig ConfigWrapper(config_);
-  port_ = ConfigWrapper.propertyLookUp("port");
+  // TODO: with new ServerConfig class, we expect the port to be stored found
+  // in the config with the following format:
+  // server {
+  //     ...
+  //     listen $(PORT);
+  //     ...
+  // }
+  std::vector<std::string> query = {"server", "listen"};
+  ConfigWrapper.propertyLookUp(query, &port_);
   std::cout << port_ << std::endl;
 }
 
