@@ -21,7 +21,7 @@ SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc serve
 all: $(TARGET)
 
 test: LDFLAGS += $(TEST_COV)
-test: integration_test
+test: clean integration_test
 
 $(TARGET): $(SRC)
 	$(CXX) $(SRC_FLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
