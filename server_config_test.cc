@@ -22,45 +22,73 @@ protected:
 
 TEST_F(ServerConfigTest, NoPortConfig) {
     std::unique_ptr<ServerConfig> server_config = ParseString("server { ACM Hack; }");
+    std::vector<std::string> query = {"server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("", server_config->propertyLookUp("port"))
+    EXPECT_EQ(1, ec)
+      << "Error value of 1 should be returned if property isn't found";
+    EXPECT_EQ("", port)
       << "No port should be found without a 'listen' property";
 }
 
 TEST_F(ServerConfigTest, PortNumberMissing) {
     std::unique_ptr<ServerConfig> server_config = ParseString("listen;");
+    std::vector<std::string> query = {"server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("", server_config->propertyLookUp("port"))
-      << "A listen property without a port number should give an empty lookup result";
+    EXPECT_EQ(1, ec)
+      << "Error value of 1 should be returned if property isn't found";
+    EXPECT_EQ("", port)
+      << "A listen property without a port number should not return a port";
 }
 
 TEST_F(ServerConfigTest, PortPropertyOnly) {
     std::unique_ptr<ServerConfig> server_config = ParseString("listen 1234;");
+    std::vector<std::string> query = {"listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("1234", server_config->propertyLookUp("port"))
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("1234", port)
       << "A listen-portnumber pair should yield a port number";
 }
 
 TEST_F(ServerConfigTest, NestedPortNumberMissing) {
     std::unique_ptr<ServerConfig> server_config = ParseString("server { listen; }");
+    std::vector<std::string> query = {"server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("", server_config->propertyLookUp("port"))
+    EXPECT_EQ(1, ec)
+      << "Error value of 1 should be returned if property isn't found with a value";
+    EXPECT_EQ("", port)
       << "A listen property without a port number in a nested block should \
           give an empty lookup result";
 }
 
 TEST_F(ServerConfigTest, NonsenseProperty) {
     std::unique_ptr<ServerConfig> server_config = ParseString("listen 1234;");
+    std::vector<std::string> query = {"laksdj3"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("", server_config->propertyLookUp("kl3j2lkj"))
-      << "A property lookup on a nonsense property should yield nothing";
+    EXPECT_EQ(1, ec)
+      << "A property lookup on a nonsense property should return 1 (meaning error)";
 }
 
 TEST_F(ServerConfigTest, SingleNestedPort) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("server { listen 1234; }");
+    std::vector<std::string> query = {"server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("1234", server_config->propertyLookUp("port"))
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("1234", port)
       << "A listen property with a port number in a nested block should \
           yield a port number";
 }
@@ -68,8 +96,13 @@ TEST_F(ServerConfigTest, SingleNestedPort) {
 TEST_F(ServerConfigTest, DoublyNestedPort) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("outer { server { listen 1234; } }");
+    std::vector<std::string> query = {"outer", "server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("1234", server_config->propertyLookUp("port"))
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("1234", port)
       << "A listen property with a port number in a doubly nested block \
           should yield a port number";
 }
@@ -77,8 +110,13 @@ TEST_F(ServerConfigTest, DoublyNestedPort) {
 TEST_F(ServerConfigTest, NonPortPropertiesPresent) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("server { echo true; listen 1234; }");
+    std::vector<std::string> query = {"server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("1234", server_config->propertyLookUp("port"))
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("1234", port)
       << "A listen property with a port number in a doubly nested block with \
           other properties should yield a port number";
 }
@@ -86,8 +124,13 @@ TEST_F(ServerConfigTest, NonPortPropertiesPresent) {
 TEST_F(ServerConfigTest, HighlyNestedPropertiesSet) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("outer { server { echo true; listen 1234; } }");
+    std::vector<std::string> query = {"outer", "server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("1234", server_config->propertyLookUp("port"))
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("1234", port)
       << "A listen property with a port number in a triply nested block with \
           other properties should yield a port number";
 }
@@ -95,8 +138,33 @@ TEST_F(ServerConfigTest, HighlyNestedPropertiesSet) {
 TEST_F(ServerConfigTest, PropertiesSetWithNewlines) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("server { echo \ntrue; listen \n1234; }");
+    std::vector<std::string> query = {"server", "listen"};
+    std::string port = "";
+    int ec = server_config->propertyLookUp(query, port);
 
-    EXPECT_EQ("1234", server_config->propertyLookUp("port"))
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("1234", port)
+      << "A listen property with a port number in a nested block with \
+          other properties and newlines should yield a port number";
+}
+
+TEST_F(ServerConfigTest, MultiWordProperties) {
+    std::unique_ptr<ServerConfig> server_config
+      = ParseString("server { \
+                       echo \ntrue; \
+                       listen \n1234; \
+                       location /echo { \
+                         action echo; \
+                       } \
+                     }");
+    std::vector<std::string> query = {"server", "location /echo", "action"};
+    std::string action = "";
+    int ec = server_config->propertyLookUp(query, action);
+
+    EXPECT_EQ(0, ec)
+      << "Error value of 0 should be returned if property is found";
+    EXPECT_EQ("echo", action)
       << "A listen property with a port number in a nested block with \
           other properties and newlines should yield a port number";
 }
