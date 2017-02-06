@@ -165,6 +165,6 @@ TEST_F(ServerConfigTest, MultiWordProperties) {
     EXPECT_EQ(0, ec)
       << "Error value of 0 should be returned if property is found";
     EXPECT_EQ("echo", action)
-      << "A listen property with a port number in a nested block with \
-          other properties and newlines should yield a port number";
+      << "Requesting the action property should yield echo in this config.";
 }
+
