@@ -18,8 +18,8 @@ struct container_hash {
 class ServerConfig {
   public:
     ServerConfig(NginxConfig config);
-    ~ServerConfig();
-    int propertyLookUp(const std::vector<std::string>& propertyPath, std::string* val);
+    int propertyLookUp(const std::vector<std::string>& propertyPath,
+                       std::string& val);
 
   private:
     void printPropertiesMap();

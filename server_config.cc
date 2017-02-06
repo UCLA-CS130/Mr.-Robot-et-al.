@@ -9,10 +9,24 @@ ServerConfig::ServerConfig(NginxConfig config) {
   printPropertiesMap();
 }
 
-ServerConfig::~ServerConfig() {}
-
 // TODO: is this a terrible function name?
 // Helper function to concatenate multi-word config parameter names
+//
+// NginxConfigStatements contain a vector of strings which it calls 'tokens'
+// when reading the tokens of a NginxConfig, an example vector of tokens
+// could be ["location", "/echo"] and this function will output a string that
+// is the concatenatenation of them with a space ("location /echo"). Another
+// time this will be used is if for example we allow parameters like
+// 'file root /home/files', then the property lookup could provide
+// ["file root"] as the lookup vector to propertyLookUp().
+//
+// valueSize represents the number of tokens that should be interpreted as
+// the 'value' of a (vector<string>, string) pair. For example in:
+//   'filePath /home/files'
+// valueSize would be 1 if '/home/files' is the value we want to get from
+// our unordered_map. If the tokens passed in consist of something like the
+// following, then valueSize could be 2 to get '/home/etc foo.gif'
+//   'pathAndFileName /home/etc foo.gif'
 std::string buildWordyParam(std::shared_ptr<NginxConfigStatement> statement,
                             size_t valueSize) {
   size_t numTokens = statement->tokens_.size();
@@ -77,14 +91,15 @@ void ServerConfig::printPropertiesMap() {
 // The outward facing interface of ServerConfig, returns an int representing the
 // status of the call and sets in *val, the value of the property passed in.
 // TODO: check return val? returns 0 on success, nonzero on any error
-int ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath, std::string* val) {
+int ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath,
+                                 std::string& val) {
   // unordered_map::at(key) throws if key not found.
   // unordered_map::operator[key] will silently create that entry
   // See: http://www.cplusplus.com/reference/unordered_map/unordered_map/operator[]/
   // and: http://www.cplusplus.com/reference/stdexcept/out_of_range/
   try {
     // TODO: add logging output here
-    *val = path_to_values_.at(propertyPath);
+    val = path_to_values_.at(propertyPath);
     return 0;
   }
   catch (const std::out_of_range& oor) {
