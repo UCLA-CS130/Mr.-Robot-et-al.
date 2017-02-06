@@ -1,6 +1,8 @@
 #include "lightning_server.h"
 #include "request_handlers.h"
 
+#include <boost/tokenizer.hpp>
+#include <cstddef>
 #include <iostream>
 #include <string>
 
@@ -36,6 +38,16 @@ void StaticRequestHandler::handleRequest(const char* request_buffer,
                                          size_t& response_buffer_size) {
 
   // TODO: Parse request to get path to file
+  // Boost has a great tokenizer
+  // See: https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c#55680
+  const std::string request(request_buffer);
+  boost::char_separator<char> separator(" ");
+  boost::tokenizer<boost::char_separator<char>> tokens(request, separator);
+  std::cout << "DEBUG: Request tokens in StaticRequestHandler::handleRequest()" << std::endl;
+  for (const auto& t : tokens) {
+    std::cout << t << "." << std::endl;
+  }
+
   // TODO: Check integrity of path
   // TODO: Determine file extension (for later, to fill out Content-Type)
   // TODO: Allocate enough memory for whole file and return pointer to file

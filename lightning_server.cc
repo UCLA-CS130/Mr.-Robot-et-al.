@@ -5,6 +5,7 @@
 #include "request_handlers.h"
 
 #include <iostream>
+#include <cstddef>
 
 // TODO: Handle errors
 
@@ -61,6 +62,7 @@ void LightningServer::start() {
     char* response_buffer = nullptr;
     size_t response_buffer_size  = 0;
 
+    // TODO: Call request-router to call the right handler
     EchoRequestHandler echo_request_handler;
     echo_request_handler.handleRequest(request_buffer,
                                        request_buffer_size,
@@ -69,6 +71,8 @@ void LightningServer::start() {
 
     // TODO: Use-after-free vulnerability if response_buffer is used after
     // EchoRequestHandler is out of scope
+
+    // TODO: Route request to the right handler
 
     // Write back response
     boost::asio::write(socket,

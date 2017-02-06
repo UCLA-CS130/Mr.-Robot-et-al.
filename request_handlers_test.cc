@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "request_handlers.h"
 
+#include <cstddef>
+
 class RequestHandlersTest : public ::testing::Test {
 protected:
   const size_t header_size = 45;
