@@ -60,7 +60,7 @@ void StaticRequestHandler::handleRequest(const char* request_buffer,
       std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
       return;
     }
-
+    // We assume the 2nd token is the resource path: GET /path/to/resource.txt
     if (i == 1) {
       resourcePath = *curToken;
     }
@@ -69,30 +69,36 @@ void StaticRequestHandler::handleRequest(const char* request_buffer,
     curToken++;
   }
 
-  // TODO: Check integrity of path
   std::string request_path = resourcePath;
+  // Cite: Boost Library request_handler.cpp code:
+  // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
+  // example/http/server/request_handler.cpp
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos)
   {
-    // TODO: Indicate bad request
+    std::cout << "DEBUG: Bad Request\n" << std::endl;
     return;
   }
-  // TODO: Determine file extension
+  // Cite: Boost Library request_handler.cpp code:
+  // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
+  // example/http/server/request_handler.cpp
   std::size_t last_slash_pos = request_path.find_last_of("/");
   std::size_t last_dot_pos = request_path.find_last_of(".");
   std::string extension;
+  // Check if position of last '.' character != end of string AND
+  // position of last '.' comes after position of last '/', then
+  // update extention to contain the file extension
+  // Ex. s = "/bird.png", s[5] = '.', s[0] = '/', extension = "png"
   if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos)
   {
     extension = request_path.substr(last_dot_pos + 1);
   }
-  // TOOD: Fill out Content-Type in Header
+
   std::string content_type = "Content-Type: " + mime_types::extension_to_type(extension);
   const std::string response_header = "HTTP/1.1 200 OK\r\n" + content_type + "\r\n\r\n";
   const size_t header_size = response_header.size();
-  boost::filesystem::path root_path( boost::filesystem::current_path() );
+  boost::filesystem::path root_path(boost::filesystem::current_path());
   std::string full_path = root_path.string() + request_path;
-  // TODO: Allocate enough memory for whole file and return pointer to file
-  // TODO: Fill out response_buffer with file data
 
   std::string reply = response_header;
 

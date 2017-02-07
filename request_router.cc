@@ -78,4 +78,3 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     return false;
   }
 }
-
