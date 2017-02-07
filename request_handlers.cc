@@ -53,3 +53,22 @@ void StaticRequestHandler::handleRequest(const char* request_buffer,
   // TODO: Allocate enough memory for whole file and return pointer to file
   // TODO: Fill out response_buffer with file data
 }
+
+void NotFoundRequestHandler::handleRequest(const char* request_buffer,
+                                           const size_t& request_buffer_size,
+                                           char* &response_buffer,
+                                           size_t& response_buffer_size) {
+
+  const std::string not_found_response =
+    "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n"
+    "<html>\n<head>\n"
+    "<title>Not Found</title>\n"
+    "<h1>404 Page Not Found</h1>\n"
+    "\n</head>\n</html>";
+  response_buffer_size = not_found_response.size();
+
+  response_buffer = new char[response_buffer_size + 1];
+
+  not_found_response.copy(response_buffer, response_buffer_size);
+  std::memcpy(&response_buffer[response_buffer_size - 1], "\0", 1);
+}

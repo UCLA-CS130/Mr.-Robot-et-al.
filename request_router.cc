@@ -70,7 +70,11 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     return true;
   }
   else {
-    // TODO: 404 handler
+    NotFoundRequestHandler notFoundHandler = NotFoundRequestHandler();
+    notFoundHandler.handleRequest(request_buffer,
+                                  request_buffer_size,
+                                  response_buffer,
+                                  response_buffer_size);
     return false;
   }
 }
