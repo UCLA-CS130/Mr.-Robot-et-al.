@@ -11,7 +11,7 @@ server {
     }
 
     location /static2 {
-        root /test;
+        root /files;
         action serve;
     }
 }
