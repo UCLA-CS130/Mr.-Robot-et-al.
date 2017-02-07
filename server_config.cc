@@ -92,7 +92,7 @@ void ServerConfig::printPropertiesMap() {
 // status of the call and sets in *val, the value of the property passed in.
 // TODO: check return val? returns 0 on success, nonzero on any error
 int ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath,
-                                 std::string& val) {
+                                 std::string& val) const {
   // unordered_map::at(key) throws if key not found.
   // unordered_map::operator[key] will silently create that entry
   // See: http://www.cplusplus.com/reference/unordered_map/unordered_map/operator[]/

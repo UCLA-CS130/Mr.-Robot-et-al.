@@ -36,9 +36,10 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     }
 
     i++;
+    curToken++;
   }
 
-  size_t indexLastSlash = resourcePath.find_last_of("/");
+  const size_t indexLastSlash = resourcePath.find_last_of("/");
 
   // Checking for a file extension to make sure the path given includes a
   // resource (/echo vs /static/file.jpg vs /static/otherroute)
@@ -54,7 +55,7 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
   server_config.propertyLookUp(query, action);
 
   if (action == "echo") {
-    EchoRequestHandler echoHandler = EchoRequestHandler();
+    EchoRequestHandler echoHandler;
     echoHandler.handleRequest(request_buffer,
                               request_buffer_size,
                               response_buffer,
@@ -62,7 +63,7 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     return true;
   }
   else if (action == "static_serve") {
-    StaticRequestHandler staticHandler = StaticRequestHandler();
+    StaticRequestHandler staticHandler;
     staticHandler.handleRequest(request_buffer,
                                 request_buffer_size,
                                 response_buffer,
@@ -70,7 +71,7 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     return true;
   }
   else {
-    NotFoundRequestHandler notFoundHandler = NotFoundRequestHandler();
+    NotFoundRequestHandler notFoundHandler;
     notFoundHandler.handleRequest(request_buffer,
                                   request_buffer_size,
                                   response_buffer,

@@ -19,7 +19,7 @@ class ServerConfig {
   public:
     ServerConfig(NginxConfig config);
     int propertyLookUp(const std::vector<std::string>& propertyPath,
-                       std::string& val);
+                       std::string& val) const;
 
   private:
     void printPropertiesMap();

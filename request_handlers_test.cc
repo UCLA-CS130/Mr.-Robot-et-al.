@@ -57,7 +57,7 @@ TEST_F(RequestHandlersTest, RandomStringTest) {
   size_t response_buffer_size = 0;
 
   // Variable for comparing with actual response_buffer
-  char expected_response_buffer[] =
+  const char expected_response_buffer[] =
     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nabcd\n";
   const size_t expected_response_buffer_size = header_size + request_buffer_size;
 

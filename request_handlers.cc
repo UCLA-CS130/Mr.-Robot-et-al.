@@ -22,7 +22,7 @@ void EchoRequestHandler::handleRequest(const char* request_buffer,
   response_buffer_size = header_size + request_buffer_size;
 
   // TODO: need to check if we need to resize response buffer, if response is huge
-  response_buffer = new char[response_buffer_size];
+  response_buffer = new char[response_buffer_size + 1];
 
   // Copy in headers, the original request, and a terminating nullbyte
   response_header.copy(response_buffer, header_size);
@@ -70,5 +70,5 @@ void NotFoundRequestHandler::handleRequest(const char* request_buffer,
   response_buffer = new char[response_buffer_size + 1];
 
   not_found_response.copy(response_buffer, response_buffer_size);
-  std::memcpy(&response_buffer[response_buffer_size - 1], "\0", 1);
+  std::memcpy(&response_buffer[response_buffer_size], "\0", 1);
 }
