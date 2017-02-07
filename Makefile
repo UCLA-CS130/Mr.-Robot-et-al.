@@ -17,8 +17,8 @@ TEST_COV = --coverage # --coverage is a synonym for-fprofile-arcs, -ftest-covera
 TARGET = lightning
 TESTS = server_config_test
 SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc \
-	  lightning_server.cc server_config.cc request_handlers.cc \
-	  request_router.cc
+	  lightning_server.cc server_config.cc mime_types.cc \
+	  request_handlers.cc request_router.cc
 
 all: $(TARGET)
 
