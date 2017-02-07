@@ -99,12 +99,25 @@ int ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath,
   // and: http://www.cplusplus.com/reference/stdexcept/out_of_range/
   try {
     // TODO: add logging output here
+    std::cout << "Found property through path below:\n";
+    for (auto const& word : propertyPath) {
+      std::cout << word << ".";
+    }
+
     val = path_to_values_.at(propertyPath);
+
+    std::cout << " -> " << val << std::endl;
+
     return 0;
   }
   catch (const std::out_of_range& oor) {
     // TODO: add logging output here
     // TODO: give some error code which the handlers can interpret to return 404,etc.
+    std::cout << "\nServerConfig propertyLookUp failed with the following path:\n";
+    for (auto const& word : propertyPath) {
+      std::cout << word << ".";
+    }
+    std::cout << std::endl;
     return 1;
   }
 }

@@ -27,7 +27,7 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     if (curToken == tokens.end()) {
       // TODO: tokens is too short
       std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
-      return false;
+      break;
     }
 
     if (i == 1) {
@@ -38,40 +38,59 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
     curToken++;
   }
 
+  std::cout << "searching: " << resourcePath << " for last '/'\n";
   const size_t indexLastSlash = resourcePath.find_last_of("/");
+  std::cout << "index of lastSlash = " << indexLastSlash << std::endl;
 
   // Checking for a file extension to make sure the path given includes a
   // resource (/echo vs /static/file.jpg vs /static/otherroute)
-  if (resourcePath.substr(indexLastSlash).find(".")) {
+  if (resourcePath.substr(indexLastSlash).find(".") != std::string::npos) {
     std::string resourceRoot = resourcePath.substr(0, indexLastSlash);
     query.push_back("location " + resourceRoot);
+    std::cout << "HERE in if: " << "location " << resourceRoot << std::endl;
   }
   else {
     query.push_back("location " + resourcePath);
+    std::cout << "HERE in else: " << "location " << resourcePath << std::endl;
   }
+  query.push_back("action");
+
+
+  std::cout << "~~begin query~~\n";
+  for (auto const& word : query) {
+    std::cout << word << ".";
+  }
+  std::cout << "\n~~end query~~\n";
 
   std::string action;
   server_config.propertyLookUp(query, action);
+  std::cout << "action: " << action << std::endl;
 
   if (action == "echo") {
+    std::cout << "Dispatching echo handler\n";
     EchoRequestHandler echoHandler;
-    echoHandler.handleRequest(request_buffer,
+    echoHandler.handleRequest(server_config,
+                              request_buffer,
                               request_buffer_size,
                               response_buffer,
                               response_buffer_size);
     return true;
   }
   else if (action == "static_serve") {
+    std::cout << "Dispatching static file handler\n";
     StaticRequestHandler staticHandler;
-    staticHandler.handleRequest(request_buffer,
+    staticHandler.handleRequest(server_config,
+                                request_buffer,
                                 request_buffer_size,
                                 response_buffer,
                                 response_buffer_size);
     return true;
   }
   else {
+    std::cout << "Dispatching 404 handler\n";
     NotFoundRequestHandler notFoundHandler;
-    notFoundHandler.handleRequest(request_buffer,
+    notFoundHandler.handleRequest(server_config,
+                                  request_buffer,
                                   request_buffer_size,
                                   response_buffer,
                                   response_buffer_size);

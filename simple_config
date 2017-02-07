@@ -7,11 +7,11 @@ server {
 
     location /static1 {
         root /test;
-        action serve;
+        action static_serve;
     }
 
     location /static2 {
         root /files;
-        action serve;
+        action static_serve;
     }
 }
