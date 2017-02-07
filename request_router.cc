@@ -20,7 +20,6 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
   // specified within the server block.
   std::vector<std::string> query = {"server"};
   // We assume the 2nd token is the resource path: GET /path/to/resource.txt
-
   int i = 0;
   auto curToken = tokens.begin();
   std::string resourcePath;

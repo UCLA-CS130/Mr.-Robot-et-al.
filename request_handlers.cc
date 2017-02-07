@@ -1,8 +1,11 @@
 #include "lightning_server.h"
 #include "request_handlers.h"
+#include "mime_types.h"
 
+#include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <cstddef>
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -48,10 +51,62 @@ void StaticRequestHandler::handleRequest(const char* request_buffer,
     std::cout << t << "." << std::endl;
   }
 
+  int i = 0;
+  auto curToken = tokens.begin();
+  std::string resourcePath;
+  for (;;) {
+    if (curToken == tokens.end()) {
+      // TODO: tokens is too short
+      std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
+      return;
+    }
+
+    if (i == 1) {
+      resourcePath = *curToken;
+    }
+
+    i++;
+    curToken++;
+  }
+
   // TODO: Check integrity of path
-  // TODO: Determine file extension (for later, to fill out Content-Type)
+  std::string request_path = resourcePath;
+  if (request_path.empty() || request_path[0] != '/'
+      || request_path.find("..") != std::string::npos)
+  {
+    // TODO: Indicate bad request
+    return;
+  }
+  // TODO: Determine file extension
+  std::size_t last_slash_pos = request_path.find_last_of("/");
+  std::size_t last_dot_pos = request_path.find_last_of(".");
+  std::string extension;
+  if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos)
+  {
+    extension = request_path.substr(last_dot_pos + 1);
+  }
+  // TOOD: Fill out Content-Type in Header
+  std::string content_type = "Content-Type: " + mime_types::extension_to_type(extension);
+  const std::string response_header = "HTTP/1.1 200 OK\r\n" + content_type + "\r\n\r\n";
+  const size_t header_size = response_header.size();
+  boost::filesystem::path root_path( boost::filesystem::current_path() );
+  std::string full_path = root_path.string() + request_path;
   // TODO: Allocate enough memory for whole file and return pointer to file
   // TODO: Fill out response_buffer with file data
+
+  std::string reply = response_header;
+
+  std::ifstream file(full_path.c_str(), std::ios::in | std::ios::binary);
+  char buf[512];
+  size_t buf_size = file.read(buf, sizeof(buf)).gcount();
+  while (buf_size > 0) {
+    reply.append(buf, file.gcount());
+    buf_size = file.read(buf, sizeof(buf)).gcount();
+  }
+
+  response_buffer = new char[reply.size()];
+  reply.copy(response_buffer, reply.size());
+  response_buffer_size = reply.size();
 }
 
 void NotFoundRequestHandler::handleRequest(const char* request_buffer,
