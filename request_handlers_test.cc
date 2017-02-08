@@ -245,33 +245,46 @@ TEST_F(RequestHandlersTest, RequestedFileDoesntExist) {
     << "response_buffer should be the same string as test_response_buffer";
 }
 
-// TEST_F(RequestHandlersTest, PNGTest) {
-//  char request_buffer[] = "";
-//  size_t request_buffer_size = 0;
+TEST_F(RequestHandlersTest, PNGTest) {
+  char request_buffer[] = "GET /static1/angrybird.png HTTP/1.1\r\n"
+                          "Host: localhost:8080\r\n"
+                          "Accept-Encoding: gzip, deflate, compress\r\n"
+                          "Accept: */*\r\n"
+                          "User-Agent: HTTPie/0.8.0\r\n\r\n";
 
-//  // The request_buffer is normally filled by a socket-read
-//  // The response_buffer is allocated by the request-handler
-//  char* response_buffer = nullptr;
-//  size_t response_buffer_size = 0;
+  const size_t request_buffer_size = strlen(request_buffer);
 
-//  char expected_response_buffer[] =
-//    "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\n\r\n";
-//  size_t expected_response_buffer_size = ok_header_size + request_buffer_size;
+  // The request_buffer is normally filled by a socket-read
+  // The response_buffer is allocated by the request-handler
+  char* response_buffer = nullptr;
+  size_t response_buffer_size = 0;
 
-//  // TODO: Need a way to diff two images; most online resources
-//  // say to use OpenCV
-//  // TODO: Need to convert string to char array to diff
-//  std::ifstream file("test/angrybird.png", std::ios::binary);
-//  std::ostringstream buffer;
-//  buffer << file.rdbuf();
-//  std::string contents(buffer.str());
-//  std::cout << contents << std::endl;
+  // TODO: Need a way to diff two images; most online resources
+  // say to use OpenCV
+  // TODO: Need to convert string to char array to diff
+  std::ifstream file("test/angrybird.png", std::ios::binary);
+  std::ostringstream buffer;
+  buffer << file.rdbuf();
+  std::string image_content(buffer.str());
+  // std::cout << image_content << std::endl;
 
-//  ASSERT_TRUE(StaticHandleRequest(request_buffer,
-//                                  request_buffer_size,
-//                                  response_buffer,
-//                                  response_buffer_size));
-// }
+  std::string content = 
+  "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\n\r\n" + image_content;
+  size_t expected_response_buffer_size = content.size();
+
+  char* expected_response_buffer = new char[expected_response_buffer_size];
+  content.copy(expected_response_buffer, expected_response_buffer_size);
+
+  ASSERT_TRUE(HandleRequest(request_buffer,
+                            request_buffer_size,
+                            response_buffer,
+                            response_buffer_size));
+
+  EXPECT_EQ(response_buffer_size, expected_response_buffer_size)
+    << "Response size should be initial request buffer size plus header size";
+  EXPECT_STREQ(expected_response_buffer, response_buffer)
+    << "response_buffer should be the same string as test_response_buffer";
+}
 
 // TEST_F(RequestHandlersTest, GIFTest) {
 //   char request_buffer[] = "";

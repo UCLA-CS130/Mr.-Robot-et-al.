@@ -27,6 +27,8 @@ void EchoRequestHandler::handleRequest(const ServerConfig& server_config,
   response_buffer_size = header_size + request_buffer_size;
 
   // TODO: need to check if we need to resize response buffer, if response is huge
+  // Zero out memory using memset
+  std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
   // response_buffer size has a +1 for a null byte at the end
   response_buffer = new char[response_buffer_size + 1];
 
@@ -128,6 +130,8 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
     buf_size = file.read(buf, sizeof(buf)).gcount();
   }
 
+  // Zero out memory using memset
+  std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
   response_buffer = new char[reply.size()];
   reply.copy(response_buffer, reply.size());
   response_buffer_size = reply.size();
