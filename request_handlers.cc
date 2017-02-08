@@ -1,6 +1,7 @@
 #include "lightning_server.h"
 #include "request_handlers.h"
 #include "mime_types.h"
+#include "server_config.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>

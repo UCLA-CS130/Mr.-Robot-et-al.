@@ -1,7 +1,11 @@
 #include "gtest/gtest.h"
+#include "server_config.h"
+#include "config_parser.h"
 #include "request_handlers.h"
+#include "mime_types.h"
 
 #include <cstddef>
+#include <sstream>
 #include <fstream>
 
 class RequestHandlersTest : public ::testing::Test {
@@ -13,9 +17,15 @@ protected:
                          const size_t& request_buffer_size,
                          char* &response_buffer,
                          size_t& response_buffer_size) {
-
+    // Read config file
+    NginxConfig config;
+    NginxConfigParser config_parser_;
+    std::stringstream config_stream("simple_config");
+    config_parser_.Parse(&config_stream, &config);
+    ServerConfig server_config(config);
     EchoRequestHandler echo_request_handler;
-    echo_request_handler.handleRequest(request_buffer,
+    echo_request_handler.handleRequest(server_config,
+                                       request_buffer,
                                        request_buffer_size,
                                        response_buffer,
                                        response_buffer_size);
@@ -31,9 +41,15 @@ protected:
                            const size_t& request_buffer_size,
                            char* &response_buffer,
                            size_t& response_buffer_size) {
-
+    // Read config file
+    NginxConfig config;
+    NginxConfigParser config_parser_;
+    std::stringstream config_stream("simple_config");
+    config_parser_.Parse(&config_stream, &config);
+    ServerConfig server_config(config);
     StaticRequestHandler static_request_handler;
-    static_request_handler.handleRequest(request_buffer,
+    static_request_handler.handleRequest(server_config,
+                                         request_buffer,
                                          request_buffer_size,
                                          response_buffer,
                                          response_buffer_size);
@@ -145,9 +161,9 @@ TEST_F(RequestHandlersTest, HTMLTest) {
 
   // TODO: Need a way to diff two HTML files
   // TODO: Need to convert string to char array to diff
-  std::ifstream in("static_test_files/index.html");
+  std::ifstream file("test/index.html");
   std::stringstream buffer;
-  buffer << in.rdbuf();
+  buffer << file.rdbuf();
   std::string contents(buffer.str());
   std::cout << contents << std::endl;
 
@@ -173,9 +189,9 @@ TEST_F(RequestHandlersTest, PNGTest) {
   // TODO: Need a way to diff two images; most online resources
   // say to use OpenCV
   // TODO: Need to convert string to char array to diff
-  std::ifstream fin("static_test_files/angrybird.png", std::ios::binary);
+  std::ifstream file("test/angrybird.png", std::ios::binary);
   std::ostringstream buffer;
-  buffer << fin.rdbuf();
+  buffer << file.rdbuf();
   std::string contents(buffer.str());
   std::cout << contents << std::endl;
 
@@ -185,23 +201,23 @@ TEST_F(RequestHandlersTest, PNGTest) {
                                   response_buffer_size));
 }
 
-TEST_F(RequestHandlersTest, GIFTest) {
-  char request_buffer[] = "";
-  const size_t request_buffer_size = 0;
+// TEST_F(RequestHandlersTest, GIFTest) {
+//   char request_buffer[] = "";
+//   const size_t request_buffer_size = 0;
 
-  // The request_buffer is normally filled by a socket-read
-  // The response_buffer is allocated by the request-handler
-  char* response_buffer = nullptr;
-  size_t response_buffer_size = 0;
+//   // The request_buffer is normally filled by a socket-read
+//   // The response_buffer is allocated by the request-handler
+//   char* response_buffer = nullptr;
+//   size_t response_buffer_size = 0;
 
-  const char expected_response_buffer[] =
-    "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n";
-  const size_t expected_response_buffer_size = header_size + request_buffer_size;
+//   const char expected_response_buffer[] =
+//     "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n";
+//   const size_t expected_response_buffer_size = header_size + request_buffer_size;
 
-  // TODO: Need a way to diff two GIFs
-  ASSERT_TRUE(StaticHandleRequest(request_buffer,
-                                  request_buffer_size,
-                                  response_buffer,
-                                  response_buffer_size));
-}
+//   // TODO: Need a way to diff two GIFs
+//   ASSERT_TRUE(StaticHandleRequest(request_buffer,
+//                                   request_buffer_size,
+//                                   response_buffer,
+//                                   response_buffer_size));
+// }
 

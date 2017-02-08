@@ -5,6 +5,8 @@
 
 using boost::asio::ip::tcp;
 
+class ServerConfig;
+
 // This is an abstract base class
 class RequestHandler {
   public:
