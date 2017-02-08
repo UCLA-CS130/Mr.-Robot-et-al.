@@ -7,14 +7,12 @@
 #include <iostream>
 #include <cstddef>
 
-// TODO: Handle errors
-
 LightningServer::LightningServer(const NginxConfig config_)
   : io_service_(),
     acceptor_(io_service_),
     server_config_(config_)
 {
-  // TODO: with new ServerConfig class, we expect the port to be stored found
+  // We expect the port to be stored found
   // in the config with the following format:
   // server {
   //     ...
@@ -60,7 +58,6 @@ void LightningServer::start() {
     char* response_buffer = nullptr;
     size_t response_buffer_size  = 0;
 
-    // TODO: Call request-router to call the right handler
     RequestRouter router;
     router.routeRequest(server_config_,
                         request_buffer,
@@ -70,8 +67,6 @@ void LightningServer::start() {
 
     // TODO: Use-after-free vulnerability if response_buffer is used after
     // EchoRequestHandler is out of scope
-
-    // TODO: Route request to the right handler
 
     // Write back response
     boost::asio::write(socket,

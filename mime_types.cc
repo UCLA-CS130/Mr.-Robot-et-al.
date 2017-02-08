@@ -7,7 +7,7 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
-// Cite: http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
+// From: http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
 //       example/http/server/mime_types.cpp
 
 #include "mime_types.h"

@@ -26,6 +26,7 @@ void EchoRequestHandler::handleRequest(const ServerConfig& server_config,
   response_buffer_size = header_size + request_buffer_size;
 
   // TODO: need to check if we need to resize response buffer, if response is huge
+  // response_buffer size has a +1 for a null byte at the end
   response_buffer = new char[response_buffer_size + 1];
 
   // Copy in headers, the original request, and a terminating nullbyte
@@ -42,7 +43,6 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
                                          char* &response_buffer,
                                          size_t& response_buffer_size) {
 
-  // TODO: Parse request to get path to file
   // Boost has a great tokenizer
   // See: https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c#55680
   const std::string request(request_buffer);
@@ -72,32 +72,30 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
   }
 
   std::string request_path = resourcePath;
-  // Cite: Boost Library request_handler.cpp code:
+  // From: Boost Library request_handler.cpp code:
   // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
   // example/http/server/request_handler.cpp
   if (request_path.empty() || request_path[0] != '/'
-      || request_path.find("..") != std::string::npos)
-  {
+      || request_path.find("..") != std::string::npos) {
     std::cout << "DEBUG: Bad Request\n" << std::endl;
     return;
   }
-  // Cite: Boost Library request_handler.cpp code:
-  // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
-  // example/http/server/request_handler.cpp
   std::size_t last_slash_pos = request_path.find_last_of("/");
   std::string filename = request_path.substr(last_slash_pos + 1);
   std::size_t last_dot_pos = request_path.find_last_of(".");
   std::string extension;
 
   std::string resourceRoot;
-  std::vector<std::string> query = {"server", "location " + request_path.substr(0, last_slash_pos), "root"};
+  std::vector<std::string> query = {"server", "location "
+    + request_path.substr(0, last_slash_pos), "root"};
+
   server_config.propertyLookUp(query, resourceRoot);
+
   // Check if position of last '.' character != end of string AND
   // position of last '.' comes after position of last '/', then
   // update extention to contain the file extension
-  // Ex. s = "/bird.png", s[5] = '.', s[0] = '/', extension = "png"
-  if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos)
-  {
+  // Example: s = "/bird.png", s[5] = '.', s[0] = '/', extension = "png"
+  if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos) {
     extension = request_path.substr(last_dot_pos + 1);
   }
 
@@ -119,9 +117,11 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
                                   response_buffer_size);
     return;
   }
+
   std::ifstream file(full_path.c_str(), std::ios::in | std::ios::binary);
   char buf[512];
   size_t buf_size = file.read(buf, sizeof(buf)).gcount();
+
   while (buf_size > 0) {
     reply.append(buf, file.gcount());
     buf_size = file.read(buf, sizeof(buf)).gcount();
