@@ -144,8 +144,9 @@ TEST_F(RequestHandlersTest, HTMLTest) {
   size_t response_buffer_size = 0;
 
   const char expected_response_buffer[] =
-    "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\n  <head></head>\n  <body>\n    <h1>Hello World!</h1>\n  </body>\n</html>";
-  const size_t expected_response_buffer_size = 136;
+    "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\n"
+    "  <head></head>\n  <body>\n    <h1>Hello World!</h1>\n  </body>\n</html>";
+  const size_t expected_response_buffer_size = 135;
 
   // TODO: Need a way to diff two HTML files
   // TODO: Need to convert string to char array to diff
@@ -244,19 +245,19 @@ TEST_F(RequestHandlersTest, RequestedFileDoesntExist) {
     << "response_buffer should be the same string as test_response_buffer";
 }
 
-//TEST_F(RequestHandlersTest, PNGTest) {
+// TEST_F(RequestHandlersTest, PNGTest) {
 //  char request_buffer[] = "";
-//  const size_t request_buffer_size = 0;
-//
+//  size_t request_buffer_size = 0;
+
 //  // The request_buffer is normally filled by a socket-read
 //  // The response_buffer is allocated by the request-handler
 //  char* response_buffer = nullptr;
 //  size_t response_buffer_size = 0;
-//
-//  const char expected_response_buffer[] =
+
+//  char expected_response_buffer[] =
 //    "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\n\r\n";
-//  const size_t expected_response_buffer_size = ok_header_size + request_buffer_size;
-//
+//  size_t expected_response_buffer_size = ok_header_size + request_buffer_size;
+
 //  // TODO: Need a way to diff two images; most online resources
 //  // say to use OpenCV
 //  // TODO: Need to convert string to char array to diff
@@ -265,12 +266,12 @@ TEST_F(RequestHandlersTest, RequestedFileDoesntExist) {
 //  buffer << file.rdbuf();
 //  std::string contents(buffer.str());
 //  std::cout << contents << std::endl;
-//
+
 //  ASSERT_TRUE(StaticHandleRequest(request_buffer,
 //                                  request_buffer_size,
 //                                  response_buffer,
 //                                  response_buffer_size));
-//}
+// }
 
 // TEST_F(RequestHandlersTest, GIFTest) {
 //   char request_buffer[] = "";
