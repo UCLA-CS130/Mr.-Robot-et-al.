@@ -41,6 +41,10 @@ bool RequestRouter::routeRequest(const ServerConfig& server_config,
   std::cout << "searching: " << resourcePath << " for last '/'\n";
   const size_t indexLastSlash = resourcePath.find_last_of("/");
   std::cout << "index of lastSlash = " << indexLastSlash << std::endl;
+  if (indexLastSlash == std::string::npos) {
+    std::cout << "Invalid request\n";
+    return false;
+  }
 
   // Checking for a file extension to make sure the path given includes a
   // resource (/echo vs /static/file.jpg vs /static/otherroute)

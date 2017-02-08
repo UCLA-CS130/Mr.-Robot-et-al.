@@ -59,14 +59,19 @@ void LightningServer::start() {
     size_t response_buffer_size  = 0;
 
     RequestRouter router;
-    router.routeRequest(server_config_,
-                        request_buffer,
-                        request_buffer_size,
-                        response_buffer,
-                        response_buffer_size);
+    bool routingSuccess = router.routeRequest(server_config_,
+                                              request_buffer,
+                                              request_buffer_size,
+                                              response_buffer,
+                                              response_buffer_size);
 
     // TODO: Use-after-free vulnerability if response_buffer is used after
     // EchoRequestHandler is out of scope
+
+    if (!routingSuccess && response_buffer_size == 0) {
+      std::cout << "Failed to route due to invalid request\n";
+      continue;
+    }
 
     // Write back response
     boost::asio::write(socket,
