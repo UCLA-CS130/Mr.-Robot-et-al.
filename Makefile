@@ -4,7 +4,7 @@ MAKEOPTS = "-j 2"
 
 CXX = g++
 SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra
-LDFLAGS = -lpthread -lboost_system
+LDFLAGS = -lpthread -lboost_filesystem -lboost_system
 
 PARSER_PATH = ./nginx-configparser/
 GTEST_DIR = nginx-configparser/googletest/googletest
@@ -16,7 +16,9 @@ TEST_COV = --coverage # --coverage is a synonym for-fprofile-arcs, -ftest-covera
 
 TARGET = lightning
 TESTS = server_config_test
-SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc lightning_server.cc server_config.cc request_handlers.cc
+SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc \
+	  lightning_server.cc server_config.cc mime_types.cc \
+	  request_handlers.cc request_router.cc
 
 all: $(TARGET)
 
@@ -35,7 +37,7 @@ $(TESTS):
 	# Build our own tests, using GTest
 	# TODO: Figure out how to name multiple CC and produce corresponding object for each
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(PARSER_PATH)config_parser.cc server_config.cc $(TESTS).cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
-	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) request_handlers.cc request_handlers_test.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o request_handlers_test
+	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(PARSER_PATH)config_parser.cc mime_types.cc server_config.cc request_router.cc request_handlers.cc request_handlers_test.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o request_handlers_test
 
 integration_test: $(TARGET) $(TESTS)
 	./$(TESTS)

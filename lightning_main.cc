@@ -9,7 +9,14 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  LightningServer server(argv[1]);
+  // Read config file
+  NginxConfig config_;
+  NginxConfigParser config_parser_;
+  config_parser_.Parse(argv[1], &config_);
+  std::cout << config_.ToString() << std::endl;
+
+  std::cout << "~~~ Starting Lightning Server using the above config ~~~\n";
+  LightningServer server(config_);
   server.start();
 
   return 0;

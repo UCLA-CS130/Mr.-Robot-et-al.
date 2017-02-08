@@ -1,21 +1,18 @@
 #include "config_parser.h"
 #include "lightning_server.h"
 #include "request_handlers.h"
+#include "request_router.h"
 #include "server_config.h"
-#include "request_handlers.h"
 
 #include <iostream>
+#include <cstddef>
 
-// TODO: Handle errors
-
-LightningServer::LightningServer(const char* file_name)
-  : io_service_(),
+LightningServer::LightningServer(const NginxConfig config_)
+  : server_config_(config_),
+    io_service_(),
     acceptor_(io_service_)
 {
-  config_parser_.Parse(file_name, &config_);
-  std::cout << config_.ToString() << std::endl;
-  ServerConfig config_wrapper(config_);
-  // TODO: with new ServerConfig class, we expect the port to be stored found
+  // We expect the port to be stored found
   // in the config with the following format:
   // server {
   //     ...
@@ -23,7 +20,7 @@ LightningServer::LightningServer(const char* file_name)
   //     ...
   // }
   std::vector<std::string> query = {"server", "listen"};
-  config_wrapper.propertyLookUp(query, port_);
+  server_config_.propertyLookUp(query, port_);
   std::cout << port_ << std::endl;
 }
 
@@ -61,14 +58,20 @@ void LightningServer::start() {
     char* response_buffer = nullptr;
     size_t response_buffer_size  = 0;
 
-    EchoRequestHandler echo_request_handler;
-    echo_request_handler.handleRequest(request_buffer,
-                                       request_buffer_size,
-                                       response_buffer,
-                                       response_buffer_size);
+    RequestRouter router;
+    bool routingSuccess = router.routeRequest(server_config_,
+                                              request_buffer,
+                                              request_buffer_size,
+                                              response_buffer,
+                                              response_buffer_size);
 
     // TODO: Use-after-free vulnerability if response_buffer is used after
     // EchoRequestHandler is out of scope
+
+    if (!routingSuccess && response_buffer_size == 0) {
+      std::cout << "Failed to route due to invalid request\n";
+      continue;
+    }
 
     // Write back response
     boost::asio::write(socket,

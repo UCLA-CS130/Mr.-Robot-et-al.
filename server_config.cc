@@ -92,19 +92,32 @@ void ServerConfig::printPropertiesMap() {
 // status of the call and sets in *val, the value of the property passed in.
 // TODO: check return val? returns 0 on success, nonzero on any error
 int ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath,
-                                 std::string& val) {
+                                 std::string& val) const {
   // unordered_map::at(key) throws if key not found.
   // unordered_map::operator[key] will silently create that entry
   // See: http://www.cplusplus.com/reference/unordered_map/unordered_map/operator[]/
   // and: http://www.cplusplus.com/reference/stdexcept/out_of_range/
   try {
     // TODO: add logging output here
+    std::cout << "Found property through path below:\n";
+    for (auto const& word : propertyPath) {
+      std::cout << word << ".";
+    }
+
     val = path_to_values_.at(propertyPath);
+
+    std::cout << " -> " << val << std::endl;
+
     return 0;
   }
   catch (const std::out_of_range& oor) {
     // TODO: add logging output here
     // TODO: give some error code which the handlers can interpret to return 404,etc.
+    std::cout << "\nServerConfig propertyLookUp failed with the following path:\n";
+    for (auto const& word : propertyPath) {
+      std::cout << word << ".";
+    }
+    std::cout << std::endl;
     return 1;
   }
 }
