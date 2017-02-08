@@ -26,11 +26,11 @@ void EchoRequestHandler::handleRequest(const ServerConfig& server_config,
   const size_t header_size = response_header.size();
   response_buffer_size = header_size + request_buffer_size;
 
-  // TODO: need to check if we need to resize response buffer, if response is huge
   // Zero out memory using memset
-  std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
   // response_buffer size has a +1 for a null byte at the end
+  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
   response_buffer = new char[response_buffer_size + 1];
+  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
 
   // Copy in headers, the original request, and a terminating nullbyte
   response_header.copy(response_buffer, header_size);
@@ -111,7 +111,7 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
   std::string reply = response_header;
   std::cout << full_path << std::endl;
   if (!boost::filesystem::exists(full_path)) {
-    std::cout << "Dispatching 404 handler\n";
+    std::cout << "Dispatching 404 hander: file not found/doesn't exist\n";
     NotFoundRequestHandler notFoundHandler;
     notFoundHandler.handleRequest(server_config,
                                   request_buffer,
@@ -131,8 +131,9 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
   }
 
   // Zero out memory using memset
-  std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
+  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
   response_buffer = new char[reply.size()];
+  // std::memset((void *)&response_buffer, 0, reply.size());
   reply.copy(response_buffer, reply.size());
   response_buffer_size = reply.size();
 }
@@ -152,6 +153,7 @@ void NotFoundRequestHandler::handleRequest(const ServerConfig& server_config,
   response_buffer_size = not_found_response.size();
 
   response_buffer = new char[response_buffer_size + 1];
+  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer) + 1);
 
   not_found_response.copy(response_buffer, response_buffer_size);
   std::memcpy(&response_buffer[response_buffer_size], "\0", 1);

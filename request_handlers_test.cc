@@ -34,10 +34,6 @@ protected:
   }
 };
 
-// TODO tests:
-// invalid route
-// invalid file
-
 TEST_F(RequestHandlersTest, EmptyStringTest) {
   const char request_buffer[] = "";
   const size_t request_buffer_size = 0;
@@ -128,10 +124,18 @@ TEST_F(RequestHandlersTest, HTMLTest) {
   char* response_buffer = nullptr;
   size_t response_buffer_size = 0;
 
-  const char expected_response_buffer[] =
-    "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\n<html>\n"
-    "  <head></head>\n  <body>\n    <h1>Hello World!</h1>\n  </body>\n</html>";
-  const size_t expected_response_buffer_size = strlen(expected_response_buffer);
+  std::ifstream file("test/index.html", std::ios::binary);
+  std::ostringstream buffer;
+  buffer << file.rdbuf();
+  std::string html_content(buffer.str());
+
+  std::string content =
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Type: text/html\r\n\r\n" + html_content;
+  const size_t expected_response_buffer_size = content.size();
+
+  char* expected_response_buffer = new char[expected_response_buffer_size];
+  content.copy(expected_response_buffer, expected_response_buffer_size);
 
   ASSERT_TRUE(HandleRequest(request_buffer,
                             request_buffer_size,
@@ -146,10 +150,10 @@ TEST_F(RequestHandlersTest, HTMLTest) {
 
 TEST_F(RequestHandlersTest, RouteDoesNotExist) {
   const char request_buffer[] = "GET /nowhere HTTP/1.1\r\n"
-                          "Host: localhost:8080\r\n"
-                          "Accept-Encoding: gzip, deflate, compress\r\n"
-                          "Accept: */*\r\n"
-                          "User-Agent: HTTPie/0.8.0\r\n\r\n";
+                                "Host: localhost:8080\r\n"
+                                "Accept-Encoding: gzip, deflate, compress\r\n"
+                                "Accept: */*\r\n"
+                                "User-Agent: HTTPie/0.8.0\r\n\r\n";
   const size_t request_buffer_size = strlen(request_buffer);
 
   char* response_buffer = nullptr;
@@ -181,10 +185,10 @@ TEST_F(RequestHandlersTest, RouteDoesNotExist) {
 
 TEST_F(RequestHandlersTest, RequestedFileDoesNotExist) {
   const char request_buffer[] = "GET /static1/nonexistantfile HTTP/1.1\r\n"
-                          "Host: localhost:8080\r\n"
-                          "Accept-Encoding: gzip, deflate, compress\r\n"
-                          "Accept: */*\r\n"
-                          "User-Agent: HTTPie/0.8.0\r\n\r\n";
+                                "Host: localhost:8080\r\n"
+                                "Accept-Encoding: gzip, deflate, compress\r\n"
+                                "Accept: */*\r\n"
+                                "User-Agent: HTTPie/0.8.0\r\n\r\n";
   const size_t request_buffer_size = strlen(request_buffer);
 
   char* response_buffer = nullptr;
@@ -215,10 +219,10 @@ TEST_F(RequestHandlersTest, RequestedFileDoesNotExist) {
 
 TEST_F(RequestHandlersTest, PNGTest) {
   const char request_buffer[] = "GET /static1/angrybird.png HTTP/1.1\r\n"
-                          "Host: localhost:8080\r\n"
-                          "Accept-Encoding: gzip, deflate, compress\r\n"
-                          "Accept: */*\r\n"
-                          "User-Agent: HTTPie/0.8.0\r\n\r\n";
+                                "Host: localhost:8080\r\n"
+                                "Accept-Encoding: gzip, deflate, compress\r\n"
+                                "Accept: */*\r\n"
+                                "User-Agent: HTTPie/0.8.0\r\n\r\n";
   const size_t request_buffer_size = strlen(request_buffer);
 
   char* response_buffer = nullptr;
@@ -230,7 +234,8 @@ TEST_F(RequestHandlersTest, PNGTest) {
   std::string image_content(buffer.str());
 
   std::string content =
-    "HTTP/1.1 200 OK\r\nContent-Type: image/png\r\n\r\n" + image_content;
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Type: image/png\r\n\r\n" + image_content;
   const size_t expected_response_buffer_size = content.size();
 
   char* expected_response_buffer = new char[expected_response_buffer_size];
@@ -266,7 +271,8 @@ TEST_F(RequestHandlersTest, GIFTest) {
   std::string image_content(buffer.str());
 
   std::string content =
-    "HTTP/1.1 200 OK\r\nContent-Type: image/gif\r\n\r\n" + image_content;
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Type: image/gif\r\n\r\n" + image_content;
   const size_t expected_response_buffer_size = content.size();
 
   char* expected_response_buffer = new char[expected_response_buffer_size];
