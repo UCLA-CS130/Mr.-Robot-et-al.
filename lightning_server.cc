@@ -8,9 +8,9 @@
 #include <cstddef>
 
 LightningServer::LightningServer(const NginxConfig config_)
-  : io_service_(),
-    acceptor_(io_service_),
-    server_config_(config_)
+  : server_config_(config_),
+    io_service_(),
+    acceptor_(io_service_)
 {
   // We expect the port to be stored found
   // in the config with the following format:
