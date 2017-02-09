@@ -2,7 +2,7 @@
 os:
   - linux
 dist: trusty
-sudo: required
+sudo: false
 
 compiler:
   - gcc
