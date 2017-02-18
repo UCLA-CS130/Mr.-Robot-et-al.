@@ -11,7 +11,7 @@
 class Request {
  public:
   // raw_request is the string read from socket
-  static unique_ptr<Request> Parse(const std::string& raw_request);
+  static std::unique_ptr<Request> Parse(const std::string& raw_request);
 
   std::string raw_request() const;
   std::string method() const;
@@ -30,6 +30,8 @@ class Request {
   std::string version_;
   Headers headers_;
   std::string body_;
+  boost::tokenizer<boost::char_separator<char>>
+    token_geneartor(std::string s, const std::string separator);
 };
 
 #endif
