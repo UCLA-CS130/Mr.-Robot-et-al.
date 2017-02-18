@@ -1,8 +1,11 @@
 #include "lightning_server.h"
 #include "request_handlers.h"
 #include "mime_types.h"
+#include "response.h"
+#include "request.h"
 #include "server_config.h"
 
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <cstddef>
@@ -12,87 +15,63 @@
 
 using boost::asio::ip::tcp;
 
+// Request Handlers instantiated by lightning_server::run()
+// looks at child block of each route
+// constructs ServerConfig for each to look at root /exampleuri/something
+
+// TODO: should this be returning bool if we're supposed to return true if successful?
+bool EchoRequestHandler::init(const std::string& uri_prefix,
+                              const NginxConfig& config) {
+  uri_prefix_ = uri_prefix;
+  config_ = config;
+
+  return true;
+}
+
 // Read in the request from the socket used to construct the handler, then
 // fill the response buffer with the necessary headers followed by the
 // original request.
-void EchoRequestHandler::handleRequest(const ServerConfig& server_config,
-                                       const char* request_buffer,
-                                       const size_t& request_buffer_size,
-                                       char* &response_buffer,
-                                       size_t& response_buffer_size) {
+RequestHandler::Status EchoRequestHandler::handleRequest(const Request& request,
+                                                         Response* response) {
 
   // Create response, defaulting to 200 OK status code for now
-  const std::string response_header = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-  const size_t header_size = response_header.size();
-  response_buffer_size = header_size + request_buffer_size;
+  response->SetStatus(Response::OK);
+  response->AddHeader("Content-Type", "text/plain\r\n\r\n");
+  response->SetBody(request.raw_request());
+  std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << request.raw_request() << std::endl;
 
-  // Zero out memory using memset
-  // response_buffer size has a +1 for a null byte at the end
-  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
-  response_buffer = new char[response_buffer_size + 1];
-  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
-
-  // Copy in headers, the original request, and a terminating nullbyte
-  response_header.copy(response_buffer, header_size);
-  std::memcpy(&response_buffer[header_size], request_buffer, request_buffer_size);
-  std::memcpy(&response_buffer[header_size + request_buffer_size], "\0", 1);
-
-  std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << response_buffer << std::endl;
+  return RequestHandler::OK;
 }
 
-void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
-                                         const char* request_buffer,
-                                         const size_t& request_buffer_size,
-                                         char* &response_buffer,
-                                         size_t& response_buffer_size) {
+// TODO: should this be returning bool if we're supposed to return true if successful?
+bool StaticRequestHandler::init(const std::string& uri_prefix,
+                                const NginxConfig& config) {
+  uri_prefix_ = uri_prefix;
+  config_ = config;
 
-  // Boost has a great tokenizer
-  // See: https://stackoverflow.com/questions/53849/how-do-i-tokenize-a-string-in-c#55680
-  const std::string request(request_buffer);
-  boost::char_separator<char> separator(" ");
-  boost::tokenizer<boost::char_separator<char>> tokens(request, separator);
-  std::cout << "DEBUG: Request tokens in StaticRequestHandler::handleRequest()" << std::endl;
-  for (const auto& t : tokens) {
-    std::cout << t << "." << std::endl;
-  }
+  return true;
+}
 
-  int i = 0;
-  auto curToken = tokens.begin();
-  std::string resourcePath;
-  for (;;) {
-    if (curToken == tokens.end()) {
-      // TODO: tokens is too short
-      std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
-      break;
-    }
-    // We assume the 2nd token is the resource path: GET /path/to/resource.txt
-    if (i == 1) {
-      resourcePath = *curToken;
-    }
+RequestHandler::Status StaticRequestHandler::handleRequest(const Request& request,
+                                                           Response* response) {
 
-    i++;
-    curToken++;
-  }
+  std::string request_path = request.uri();
 
-  std::string request_path = resourcePath;
+  // Validating request
   // From: Boost Library request_handler.cpp code:
   // http://www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/
   // example/http/server/request_handler.cpp
   if (request_path.empty() || request_path[0] != '/'
       || request_path.find("..") != std::string::npos) {
     std::cout << "DEBUG: Bad Request\n" << std::endl;
-    return;
+    return RequestHandler::BAD_REQUEST;
   }
+
+  // Extracting extension for getting the correct mime type
   std::size_t last_slash_pos = request_path.find_last_of("/");
   std::string filename = request_path.substr(last_slash_pos + 1);
   std::size_t last_dot_pos = request_path.find_last_of(".");
   std::string extension;
-
-  std::string resourceRoot;
-  std::vector<std::string> query = {"server", "location "
-    + request_path.substr(0, last_slash_pos), "root"};
-
-  server_config.propertyLookUp(query, resourceRoot);
 
   // Check if position of last '.' character != end of string AND
   // position of last '.' comes after position of last '/', then
@@ -102,59 +81,63 @@ void StaticRequestHandler::handleRequest(const ServerConfig& server_config,
     extension = request_path.substr(last_dot_pos + 1);
   }
 
-  std::string content_type = "Content-Type: " + mime_types::extension_to_type(extension);
-  const std::string response_header = "HTTP/1.1 200 OK\r\n" + content_type + "\r\n\r\n";
-  const size_t header_size = response_header.size();
-  boost::filesystem::path root_path(boost::filesystem::current_path());
-  std::string full_path = root_path.string() + resourceRoot + "/" + filename;
+  // Since we're passed in the child block of the route block, we can directly
+  // lookup the 'root' path
+  std::string resourceRoot;
+  std::vector<std::string> query = {"path"};
+  // TODO: how do we access the server config from within a handler now?
+  server_config.propertyLookUp(query, resourceRoot);
 
-  std::string reply = response_header;
-  std::cout << full_path << std::endl;
+  // Construct the actual path to the requested file
+  boost::filesystem::path root_path(boost::filesystem::current_path());
+  boost::replace_all(request_path, uri_prefix_, resourceRoot);
+  std::string full_path = root_path.string() + request_path;
+
+  // Check to make sure that file exists, and dispatch 404 handler if it doesn't
   if (!boost::filesystem::exists(full_path)) {
     std::cout << "Dispatching 404 hander: file not found/doesn't exist\n";
+    // TODO: how do we access the long lived handlers from in here?
     NotFoundRequestHandler notFoundHandler;
-    notFoundHandler.handleRequest(server_config,
-                                  request_buffer,
-                                  request_buffer_size,
-                                  response_buffer,
-                                  response_buffer_size);
-    return;
+    notFoundHandler.handleRequest(request, response);
+    return RequestHandler::NOT_FOUND;
   }
 
+  // Read file into buffer
   std::ifstream file(full_path.c_str(), std::ios::in | std::ios::binary);
-  char buf[512];
-  size_t buf_size = file.read(buf, sizeof(buf)).gcount();
-
-  while (buf_size > 0) {
-    reply.append(buf, file.gcount());
-    buf_size = file.read(buf, sizeof(buf)).gcount();
+  std::string reply = "";
+  char file_buf[512];
+  while (file.read(file_buf, sizeof(file_buf)).gcount() > 0) {
+    reply.append(file_buf, file.gcount());
   }
 
-  // Zero out memory using memset
-  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer));
-  response_buffer = new char[reply.size()];
-  // std::memset((void *)&response_buffer, 0, reply.size());
-  reply.copy(response_buffer, reply.size());
-  response_buffer_size = reply.size();
+  response->SetStatus(Response::OK);
+  response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
+  response->SetBody(reply);
+
+  return RequestHandler::OK;
 }
 
-void NotFoundRequestHandler::handleRequest(const ServerConfig& server_config,
-                                           const char* request_buffer,
-                                           const size_t& request_buffer_size,
-                                           char* &response_buffer,
-                                           size_t& response_buffer_size) {
+// TODO: should this be returning bool if we're supposed to return true if successful?
+bool NotFoundRequestHandler::init(const std::string& uri_prefix,
+                                  const NginxConfig& config) {
+  uri_prefix_ = uri_prefix;
+  config_ = config;
 
-  const std::string not_found_response =
-    "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n"
+  return true;
+}
+
+RequestHandler::Status NotFoundRequestHandler::handleRequest(const Request& request,
+                                                             Response* response) {
+
+  const std::string not_found_response_html =
     "<html>\n<head>\n"
     "<title>Not Found</title>\n"
     "<h1>404 Page Not Found</h1>\n"
     "\n</head>\n</html>";
-  response_buffer_size = not_found_response.size();
 
-  response_buffer = new char[response_buffer_size + 1];
-  // std::memset((void *)&response_buffer, 0, sizeof(response_buffer) + 1);
+  response->SetStatus(Response::NOT_FOUND);
+  response->AddHeader("Content-Type", "text/html");
+  response->SetBody(not_found_response_html);
 
-  not_found_response.copy(response_buffer, response_buffer_size);
-  std::memcpy(&response_buffer[response_buffer_size], "\0", 1);
+  return RequestHandler::NOT_FOUND;
 }

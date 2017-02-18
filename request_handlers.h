@@ -5,50 +5,60 @@
 
 using boost::asio::ip::tcp;
 
+class NginxConfig;
 class ServerConfig;
+class Request;
+class Response;
 
 // This is an abstract base class
 class RequestHandler {
   public:
-    RequestHandler() {};
-    virtual void handleRequest(const ServerConfig& server_config,
-                               const char* request_buffer,
-                               const size_t& request_buffer_size,
-                               char* &response_buffer,
-                               size_t& response_buffer_size) = 0;
+    enum Status {
+      OK = 0;
+      NOT_FOUND = 404;
+    };
+
+    // Initializes the handler. Returns true if successful
+    // uri_prefix is the value in the config file that this handler will run for.
+    // config is the contents of the child block for this handler ONLY.
+    virtual bool init(const std::string& uri_prefix,
+                      const NginxConfig& config) = 0;
+
+    virtual Status handleRequest(const Request& request,
+                                 Response* response) = 0;
+  protected:
+    std::string uri_prefix_;
+    ServerConfig config_;
 };
 
 // Echo the request that was received in the body of the response
 class EchoRequestHandler : public RequestHandler {
   public:
-    EchoRequestHandler() {};
-    virtual void handleRequest(const ServerConfig& server_config,
-                               const char* request_buffer,
-                               const size_t& request_buffer_size,
-                               char* &response_buffer,
-                               size_t& response_buffer_size);
+    virtual bool init(const std::string& uri_prefix,
+                      const NginxConfig& config);
+
+    virtual Status handleRequest(const Request& request,
+                                 Response* response) = 0;
 };
 
 // Serve a up a file statically (without modifications)
 class StaticRequestHandler : public RequestHandler {
   public:
-    StaticRequestHandler() {};
-    virtual void handleRequest(const ServerConfig& server_config,
-                               const char* request_buffer,
-                               const size_t& request_buffer_size,
-                               char* &response_buffer,
-                               size_t& response_buffer_size);
+    virtual bool init(const std::string& uri_prefix,
+                      const NginxConfig& config);
+
+    virtual Status handleRequest(const Request& request,
+                                 Response* response) = 0;
 };
 
 // Return a 404 error page
 class NotFoundRequestHandler : public RequestHandler {
   public:
-    NotFoundRequestHandler() {};
-    virtual void handleRequest(const ServerConfig& server_config,
-                               const char* request_buffer,
-                               const size_t& request_buffer_size,
-                               char* &response_buffer,
-                               size_t& response_buffer_size);
+    virtual bool init(const std::string& uri_prefix,
+                        const NginxConfig& config);
+
+    virtual Status handleRequest(const Request& request,
+                                 Response* response) = 0;
 };
 
 #endif
