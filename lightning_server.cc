@@ -53,17 +53,13 @@ void LightningServer::start() {
     char* response_buffer = nullptr;
     size_t response_buffer_size  = 0;
 
-    RequestRouter router;
-    bool routingSuccess = router.routeRequest(server_config_,
-                                              request_buffer,
-                                              request_buffer_size,
-                                              response_buffer,
-                                              response_buffer_size);
+    // TODO: Initialize ServerConfig and RequestRouter
+    // TODO: Route requests to their handlers
 
     // TODO: Use-after-free vulnerability if response_buffer is used after
     // EchoRequestHandler is out of scope
 
-    if (!routingSuccess && response_buffer_size == 0) {
+    if (response_buffer_size == 0) {
       std::cout << "Failed to route due to invalid request\n";
       continue;
     }
