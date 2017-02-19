@@ -14,8 +14,9 @@ class Response;
 class RequestHandler {
   public:
     enum Status {
-      OK = 0;
-      NOT_FOUND = 404;
+      OK = 0,
+      BAD_REQUEST = 400,
+      NOT_FOUND = 404
     };
 
     // Initializes the handler. Returns true if successful

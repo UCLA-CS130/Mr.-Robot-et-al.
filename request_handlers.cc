@@ -19,7 +19,6 @@ using boost::asio::ip::tcp;
 // looks at child block of each route
 // constructs ServerConfig for each to look at root /exampleuri/something
 
-// TODO: should this be returning bool if we're supposed to return true if successful?
 bool EchoRequestHandler::init(const std::string& uri_prefix,
                               const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
@@ -43,7 +42,6 @@ RequestHandler::Status EchoRequestHandler::handleRequest(const Request& request,
   return RequestHandler::OK;
 }
 
-// TODO: should this be returning bool if we're supposed to return true if successful?
 bool StaticRequestHandler::init(const std::string& uri_prefix,
                                 const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
@@ -117,7 +115,6 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   return RequestHandler::OK;
 }
 
-// TODO: should this be returning bool if we're supposed to return true if successful?
 bool NotFoundRequestHandler::init(const std::string& uri_prefix,
                                   const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
