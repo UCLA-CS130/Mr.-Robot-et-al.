@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <boost/tokenizer.hpp>
 
 // Represents an HTTP Request.
 //
@@ -30,8 +31,6 @@ class Request {
   std::string version_;
   Headers headers_;
   std::string body_;
-  boost::tokenizer<boost::char_separator<char>>
-    token_geneartor(std::string s, const std::string separator);
 };
 
 #endif
