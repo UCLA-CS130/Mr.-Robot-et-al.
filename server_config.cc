@@ -80,6 +80,10 @@ bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> base
         prefix_to_handler_name_[curStatement->tokens_[1]] = curStatement->tokens_[2];
         continue;
       }
+      else if (numTokens == 2 && curStatement->tokens_[0] == "default") {
+        prefix_to_handler_name_["default"] = curStatement->tokens_[1];
+        continue;
+      }
       else {
         std::vector<std::string> basePathExtended = basePath;
         basePathExtended.push_back(buildWordyParam(config.statements_[i], 0));
