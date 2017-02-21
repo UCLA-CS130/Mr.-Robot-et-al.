@@ -4,6 +4,7 @@
 #include "request_router.h"
 #include "server_config.h"
 #include "request.h"
+#include "response.h"
 
 #include <iostream>
 #include <cstddef>
@@ -65,6 +66,9 @@ void LightningServer::start() {
     // for (size_t i = 0; i< req->headers().size(); i++) {
     //   std::cout << "Header Val: " + req->headers()[i].first + ", " + req->headers()[i].second << std::endl;
     // }
+
+    // Response Resp;
+    // Resp.SetStatus(Response::OK);
 
     // Handle echo response in external handler
     char* response_buffer = nullptr;

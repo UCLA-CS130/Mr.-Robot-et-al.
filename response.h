@@ -1,7 +1,10 @@
 #ifndef RESPONSE_H
 #define RESPONSE_H
 
+#include <memory>
 #include <string>
+#include <boost/tokenizer.hpp>
+#include <map>
 
 // Represents an HTTP response.
 //
@@ -16,9 +19,11 @@
 // to serialize.
 class Response {
  public:
+  using Headers = std::vector<std::pair<std::string, std::string>>;
   enum ResponseCode {
     OK = 200,
-    NOT_FOUND = 404
+    NOT_FOUND = 404,
+    FOUND = 302
   };
   
   void SetStatus(const ResponseCode response_code);
@@ -29,7 +34,13 @@ class Response {
   std::string ToString();
 
  private:
-  std::string response_header_;
+  std::map<int, std::string> reason_phrase_ = {
+      {200, "OK"},
+      {404, "NOT FOUND"},
+      {302, "FOUND"}
+  };
+  std::string first_line_;
+  Headers response_header_;
   std::string response_body_;
 };
 
