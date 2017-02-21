@@ -21,15 +21,19 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   // No support for POST requests yet, so set body_ to empty string
   req->body_ = "";
 
-  std::string first_line(raw_request.begin(), std::find(raw_request.begin(), 
-                         raw_request.end(), '\r\n'));
-  std::string rest_lines(std::find(raw_request.begin(), 
-                         raw_request.end(), '\r\n'), raw_request.end());
+  int pos = raw_request.find_first_of('\r\n');
+
+  std::string first_line = raw_request.substr(0, pos);
+
+  std::string rest_lines = raw_request.substr(pos+1);
+  std::cout << "first_line: " + first_line << std::endl;
+  std::cout << "rest_lines: " + rest_lines << std::endl;
 
   // Replace '\r\n' with space for tokenizing later
-  boost::replace_all(first_line, "\r\n", "");
+  // boost::replace_all(first_line, "\r\n", "");
   boost::replace_all(rest_lines, "\r\n", "~~~");
   boost::replace_all(rest_lines, ": ", "~~~");
+  // std::cout << rest_lines << std::endl;
 
   // Generate tokens
   // first line depends on " " as separatorrs
@@ -44,6 +48,7 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   int i = 0;
   auto curToken1 = tokens1.begin();
   for (;;) {
+    // std::cout << "token: " + *curToken1 << std::endl;
     if (curToken1 == tokens1.end()) {
       // TODO: tokens is too short
       std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
@@ -76,7 +81,7 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
       break;
     }
     // add key-value pairs into headers_
-    if (i % 2 == 0) {
+    if (i % 2 == 0 || i % 2 == 2) {
       headerKey = *curToken2;
     }
     if (i % 2 == 1) {
