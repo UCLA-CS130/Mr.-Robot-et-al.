@@ -3,8 +3,14 @@
 
 typedef std::map<const std::string, const std::unique_ptr<RequestHandler>> HandlersMap;
 
-RequestRouter::RequestRouter(const ServerConfig& server_config) {
-  // TODO
+bool RequestRouter::BuildRoutes(const ServerConfig& server_config) {
+  // TODO: Build prefix -> RequestHandler* map
+
+  // TODO: Build special 404 route (perhaps as internal member)
+
+  // TODO: Init() each new RequestHandler instance
+
+  return false;
 }
 
 std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& full_uri) const {
@@ -34,10 +40,9 @@ std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& f
       }
       else {
         // Found the matching longest-prefix; return corresponding handler
-        return std::move(it->second);
+        return it->second;
       }
     }
   }
-
   // TODO: If no prefix found, return 404 handler
 }

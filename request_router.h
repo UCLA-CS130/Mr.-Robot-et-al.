@@ -7,27 +7,27 @@
 #include <memory>
 #include <map>
 
-// Stores the mapping of (uri_prefix -> RequestHandler),
+// Stores and allows access to the mapping of (uri_prefix -> RequestHandler),
 // which we call a "route".
 //
-// Also initializes RequestHandlers with their URI prefix
-// and config block-specific options.
+// Also initializes and stores our long-lived RequestHandler instances
 class RequestRouter {
   public:
     // Given a ServerConfig, initialize RequestHandler's and map URI prefixes
     // to them. Prefixes are assumed to be unique within the config file
     //
+    // Returns true if all routes are built successfully and false otherwise
+    // (e.g., a non-existent handler is named in the config file and fails to be built)
+    //
     // Example: path /static1 StaticHandler { ... }
     //          path /static1/subaction DynamicServeHandler { ... }
     //
     // would create the mapping:
-    //          /static1 -> StaticHandler
-    //          /static1/subaction -> DynamicServeHandler
+    //          /static1 -> StaticHandler*
+    //          /static1/subaction -> DynamicServeHandler*
     //
     // Notice the lack of trailing slash: /prefix, not /prefix/
-    // And each handler would store their uri_prefix + the NginxConfig
-    // child-block corresponding to that path.
-    RequestRouter(const ServerConfig& server_config);
+    bool BuildRoutes(const ServerConfig& server_config);
 
     // Map full URIs to the appropriate RequestHandler,
     // with longest-prefix matching for when URIs overlap.
@@ -38,7 +38,7 @@ class RequestRouter {
     //          /static1/subaction/subdir/file1.txt
     //
     // would give back DynamicServeHandler, not StaticHandler,
-    // as /static1/subaction is the longest-prefix that matches.
+    // as /static1/subaction is the longest prefix that matches.
     std::unique_ptr<RequestHandler> routeRequest(const std::string& full_uri) const;
 
   private:
