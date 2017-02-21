@@ -1,17 +1,14 @@
-server {
-    listen  8080;
+# This is a comment.
 
-    location /echo {
-        action echo;
-    }
+port 2020;  # This is also a comment.
 
-    location /static1 {
-        root /test;
-        action static_serve;
-    }
-
-    location /static2 {
-        root /files;
-        action static_serve;
-    }
+path / StaticHandler {
+  root /foo/bar;
 }
+
+# Empty config blocks are allowed; not all handlers need options
+# Currently: no default options for handlers
+path /echo EchoHandler {}
+
+# Default response handler if no handlers match.
+default NotFoundHandler {}
