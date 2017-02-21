@@ -14,14 +14,7 @@ LightningServer::LightningServer(const NginxConfig config_)
     io_service_(),
     acceptor_(io_service_)
 {
-  // We expect the port to be stored found
-  // in the config with the following format:
-  // server {
-  //     ...
-  //     listen $(PORT);
-  //     ...
-  // }
-  std::vector<std::string> query = {"server", "listen"};
+  std::vector<std::string> query = {"port"};
   server_config_.propertyLookUp(query, port_);
   std::cout << port_ << std::endl;
 }
