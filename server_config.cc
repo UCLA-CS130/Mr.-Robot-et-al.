@@ -67,7 +67,7 @@ bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> base
     std::shared_ptr<NginxConfigStatement> curStatement = config.statements_[i];
     size_t numTokens = curStatement->tokens_.size();
     if (numTokens < 1) {
-      std::cout << "Invalid statement: no value associated with param\n";
+      std::cout << "Invalid statement: no tokens\n";
       std::cout << curStatement->ToString(5) << std::endl;
       return false;
     }
@@ -87,12 +87,17 @@ bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> base
       else {
         std::vector<std::string> basePathExtended = basePath;
         basePathExtended.push_back(buildWordyParam(config.statements_[i], 0));
-        fillOutMaps(*(config.statements_[i]->child_block_), basePathExtended);
+        return fillOutMaps(*(config.statements_[i]->child_block_), basePathExtended);
       }
     }
     else {
       // Dealing with an NginxConfigStatement (no child block)
       // LeafTokens denote the number of 'words' in a statement w/o a child block
+      if (numTokens < 2) {
+        std::cout << "Invalid statement: no value associated with param\n";
+        std::cout << curStatement->ToString(5) << std::endl;
+        return false;
+      }
       size_t numLeafTokens = config.statements_[i]->tokens_.size();
       std::vector<std::string> finalPath = basePath;
       finalPath.push_back(buildWordyParam(config.statements_[i], 1));
@@ -141,7 +146,7 @@ std::unordered_map<std::string, std::string> ServerConfig::allPaths() const {
 std::unique_ptr<NginxConfig> ServerConfig::getChildBlock(std::string uri_prefix) const {
   // Assumes that routes are specified at the top level of the config file
   for (size_t i = 0; i < config_.statements_.size(); i++) {
-    std::shared_ptr<NginxConfigStatement> curStatement = config_.statements_[0];
+    std::shared_ptr<NginxConfigStatement> curStatement = config_.statements_[i];
 
     // Only look at Route configuration blocks in the config
     size_t numTokens = curStatement->tokens_.size();

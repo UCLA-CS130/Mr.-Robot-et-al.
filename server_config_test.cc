@@ -50,7 +50,7 @@ TEST_F(ServerConfigTest, AllPathsNotEmpty) {
 
     EXPECT_EQ(true, ec)
       << "Build() should return true if a valid config is supplied";
-    EXPECT_EQ(false, paths.empty());
+    EXPECT_EQ(false, paths.empty())
       << "allPaths() shouldn't return an empty map";
 }
 
@@ -63,6 +63,34 @@ TEST_F(ServerConfigTest, AllPathsEmpty) {
       << "Build() should return true if a valid config is supplied";
     EXPECT_EQ(true, paths.empty())
       << "allPaths() should return an empty map";
+}
+
+TEST_F(ServerConfigTest, HasChildBlock) {
+    std::unique_ptr<ServerConfig> server_config
+      = ParseString("port 8080; \
+                     path / StaticHandler { \
+                       root /foo/bar \
+                     }");
+    bool ec = server_config->Build();
+    std::unique_ptr<NginxConfig> childBlock = server_config->getChildBlock("/");
+
+    EXPECT_EQ(true, ec)
+      << "Build() should return true if a valid config is supplied";
+    EXPECT_EQ(1, childBlock->statements_.size())
+      << "The child block of '/' prefix should have one statement in it";
+}
+
+TEST_F(ServerConfigTest, EmptyChildBlock) {
+    std::unique_ptr<ServerConfig> server_config
+      = ParseString("port 8080; \
+                     path / StaticHandler {}");
+    bool ec = server_config->Build();
+    std::unique_ptr<NginxConfig> childBlock = server_config->getChildBlock("/");
+
+    EXPECT_EQ(true, ec)
+      << "Build() should return true if a valid config is supplied";
+    EXPECT_EQ(0, childBlock->statements_.size())
+      << "The child block of '/' prefix should have no statements";
 }
 
 TEST_F(ServerConfigTest, NoPortConfig) {
@@ -257,6 +285,4 @@ TEST_F(ServerConfigTest, MultiWordProperties) {
     EXPECT_EQ("echo", action)
       << "Requesting the action property should yield echo in this config.";
 }
-
-// TODO: unit test getChildBlock()
 
