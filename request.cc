@@ -3,11 +3,9 @@
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
-using Headers = std::vector<std::pair<std::string, std::string>>;
-
 // Helper function to tokenize a string
 boost::tokenizer<boost::char_separator<char>> 
-token_generator(const std::string s, const char* sep) {
+tokenGenerator(const std::string s, const char* sep) {
   // Tokenize the rest_lines 
   boost::char_separator<char> separator(sep);
   boost::tokenizer<boost::char_separator<char>> tokens(s, separator);
@@ -29,70 +27,73 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   std::cout << "first_line: " + first_line << std::endl;
   std::cout << "rest_lines: " + rest_lines << std::endl;
 
-  // Replace '\r\n' with space for tokenizing later
-  // boost::replace_all(first_line, "\r\n", "");
+  // Replace '\r\n' and ': ' with '~~~' for tokenizing later
   boost::replace_all(rest_lines, "\r\n", "~~~");
   boost::replace_all(rest_lines, ": ", "~~~");
-  // std::cout << rest_lines << std::endl;
 
   // Generate tokens
   // first line depends on " " as separatorrs
-  // rest of lines depends on ": " and "\r\n" as separators for key/value
-  boost::tokenizer<boost::char_separator<char>> tokens1 = token_generator(
+  // rest of lines depends on "~~~" as separators for key/value
+  boost::tokenizer<boost::char_separator<char>> tokens1 = tokenGenerator(
                                                           first_line, " ");
-  boost::tokenizer<boost::char_separator<char>> tokens2 = token_generator(
+  boost::tokenizer<boost::char_separator<char>> tokens2 = tokenGenerator(
                                                           rest_lines, "~~~");
 
   // Tokenize first_line
   // We assume the 2nd token is the uri: GET /path/to/resource.txt
   int i = 0;
-  auto curToken1 = tokens1.begin();
-  for (;;) {
-    // std::cout << "token: " + *curToken1 << std::endl;
-    if (curToken1 == tokens1.end()) {
+  for (auto cur_token_first_line = tokens1.begin();
+       cur_token_first_line != tokens1.end(); cur_token_first_line++) {
+    // std::cout << "token: " +  cur_token_first_line << std::endl;
+    if  (cur_token_first_line == tokens1.end()) {
       // TODO: tokens is too short
       std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
       break;
     }
     if (i == 0) {
       // set method_ as first token
-      req->method_ = *curToken1;
+      req->method_ =  *cur_token_first_line;
     }
     else if (i == 1) {
       // set uri_ as second token
-      req->uri_ = *curToken1;
+      req->uri_ =  *cur_token_first_line;
     }
     else if (i == 2) {
       // set version_ as third token
-      req->version_ = *curToken1;
+      req->version_ =  *cur_token_first_line;
+    }
+    else {
+      // Error, since we only expect 3 tokens from first line
+      std::cout << "ERROR: malformed request with more"
+                   " than 3 tokens on the first line." << std::endl;
+      return nullptr;
     }
     i++;
-    curToken1++;
   }
 
   // Tokenize rest_lines
   i = 0;
-  std::string headerKey = "";
-  auto curToken2 = tokens2.begin();
-  for (;;) {
-    if (curToken2 == tokens2.end()) {
-      // TODO: tokens is too short
-      std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
-      break;
+  std::string header_key = "";
+  for (auto cur_token_rest_lines = tokens2.begin(); 
+       cur_token_rest_lines != tokens2.end(); cur_token_rest_lines++) {
+    // end token can't be an even number
+    auto temp = cur_token_rest_lines;
+    if (temp++ == tokens2.end() && i % 2 == 0) {
+      std::cout << "ERROR: malformed request with mismatching tokens "
+                   "in the header specifications." << std::endl;
+      return nullptr;
     }
     // add key-value pairs into headers_
     if (i % 2 == 0 || i % 2 == 2) {
-      headerKey = *curToken2;
+      header_key = *cur_token_rest_lines;
     }
     if (i % 2 == 1) {
-      req->headers_.push_back(std::make_pair(headerKey, *curToken2));
+      req->headers_.push_back(std::make_pair(header_key, *cur_token_rest_lines));
     }
     i++;
-    curToken2++;
   }
 
   return req;
-
 }
 
 std::string Request::raw_request() const {
@@ -111,7 +112,7 @@ std::string Request::version() const {
   return version_;
 }
 
-Headers Request::headers() const {
+Request::Headers Request::headers() const {
   return headers_;
 }
 

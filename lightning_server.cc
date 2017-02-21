@@ -56,20 +56,6 @@ void LightningServer::start() {
         continue;
     }
 
-    // DEBUG Testing Below; Can be removed later
-    // Request Req;
-    // std::unique_ptr<Request> req = Req.Parse(request_buffer);
-    // std::cout << "Contents of Request Object:" + req->raw_request() << std::endl;
-    // std::cout << "Method:" + req->method() << std::endl;
-    // std::cout << "URI: " + req->uri() << std::endl;
-    // std::cout << "Version: " + req->version() << std::endl;
-    // for (size_t i = 0; i< req->headers().size(); i++) {
-    //   std::cout << "Header Val: " + req->headers()[i].first + ", " + req->headers()[i].second << std::endl;
-    // }
-
-    // Response Resp;
-    // Resp.SetStatus(Response::OK);
-
     // Handle echo response in external handler
     char* response_buffer = nullptr;
     size_t response_buffer_size  = 0;

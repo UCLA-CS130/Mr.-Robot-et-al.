@@ -19,8 +19,7 @@
 // to serialize.
 class Response {
  public:
-  using Headers = std::vector<std::pair<std::string, std::string>>;
-  enum ResponseCode {
+    enum ResponseCode {
     OK = 200,
     NOT_FOUND = 404,
     FOUND = 302
@@ -40,6 +39,7 @@ class Response {
       {302, "FOUND"}
   };
   std::string first_line_;
+  using Headers = std::vector<std::pair<std::string, std::string>>;
   Headers response_header_;
   std::string response_body_;
 };
