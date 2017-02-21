@@ -27,7 +27,7 @@ class RequestRouter {
     //          /static1/subaction -> DynamicServeHandler*
     //
     // Notice the lack of trailing slash: /prefix, not /prefix/
-    bool BuildRoutes(const ServerConfig& server_config);
+    bool buildRoutes(const ServerConfig& server_config);
 
     // Map full URIs to the appropriate RequestHandler,
     // with longest-prefix matching for when URIs overlap.
@@ -48,6 +48,8 @@ class RequestRouter {
     // See: https://stackoverflow.com/questions/20965200/stdhash-for-unique-ptr-in-unordered-map
     std::map<const std::string, const std::unique_ptr<RequestHandler>>
       handlers_map_;
+
+    std::unique_ptr<RequestHandler> not_found_handler_;
 };
 
 #endif

@@ -3,14 +3,28 @@
 
 typedef std::map<const std::string, const std::unique_ptr<RequestHandler>> HandlersMap;
 
-bool RequestRouter::BuildRoutes(const ServerConfig& server_config) {
-  // TODO: Build prefix -> RequestHandler* map
+bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
+  // Iterate over uri_prefix -> handler_name map
+  for (const auto path : server_config.allPaths()) {
+    const std::string uri_prefix = path.first;
+    const std::string handler_name = path.second;
 
-  // TODO: Build special 404 route (perhaps as internal member)
+    std::unique_ptr<RequestHandler> handler_instance = RequestHandler::CreateByName(handler_name);
+    if (handler_instance == nullptr) {
+      return false;
+    }
+    else {
+      if (! handler_instance.Init(uri_prefix, server_config.getChildBlock(uri_prefix))) {
+        return false;
+      }
 
-  // TODO: Init() each new RequestHandler instance
+      handlers_map_[uri_prefix] = handler_instance;
+    }
+  }
 
-  return false;
+  // Build special 404 route, which is our fall-through error case
+  not_found_handler_ = RequestHandler::CreateByName("NotFoundHandler");
+  return true;
 }
 
 std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& full_uri) const {
