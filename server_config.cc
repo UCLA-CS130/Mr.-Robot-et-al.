@@ -21,17 +21,17 @@
 // following, then valueSize could be 2 to get '/home/etc foo.gif'
 //   'pathAndFileName /home/etc foo.gif'
 std::string buildWordyParam(std::shared_ptr<NginxConfigStatement> statement,
-                            size_t valueSize) {
-  size_t numTokens = statement->tokens_.size();
-  std::string paramName = "";
+                            size_t value_size) {
+  size_t num_tokens = statement->tokens_.size();
+  std::string param_name = "";
 
-  for (size_t i = 0; i < numTokens-valueSize; i++) {
-    if (paramName != "")
-      paramName += " ";
-    paramName += statement->tokens_[i];
+  for (size_t i = 0; i < num_tokens - value_size; i++) {
+    if (param_name != "")
+      param_name += " ";
+    param_name += statement->tokens_[i];
   }
 
-  return paramName;
+  return param_name;
 }
 
 // ServerConfig acts as a wrapper for NginxConfig objects, allowing for easier
@@ -47,16 +47,16 @@ ServerConfig::ServerConfig(NginxConfig config)
 // in config, creating both the map from path to property values as well as
 // the map from prefix to handler_name.
 bool ServerConfig::Build() {
-  std::vector<std::string> basePath = {};
+  std::vector<std::string> base_path = {};
   printPropertiesMap();
-  return fillOutMaps(config_, basePath);
+  return fillOutMaps(config_, base_path);
 }
 
 // In NgnixConfig, Statements are root level 'blocks' (e.g. server {})
 // fillOutMaps will recursively construct an unordered_map between a vector of strings
 // representing the 'path' to a config parameter and the value of that parameter
 //   e.g. ["server", "listen"] should be mapped to the port number
-bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> basePath) {
+bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> base_path) {
   if (config.statements_.size() < 1) {
     std::cout << "Failed to build ServerConfig map, recieved empty config\n";
     return false;
@@ -64,44 +64,44 @@ bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> base
 
   // Loop through all config param block at the current depth
   for (size_t i = 0; i < config.statements_.size(); i++) {
-    std::shared_ptr<NginxConfigStatement> curStatement = config.statements_[i];
-    size_t numTokens = curStatement->tokens_.size();
-    if (numTokens < 1) {
+    std::shared_ptr<NginxConfigStatement> cur_statement = config.statements_[i];
+    size_t num_tokens = cur_statement->tokens_.size();
+    if (num_tokens < 1) {
       std::cout << "Invalid statement: no tokens\n";
-      std::cout << curStatement->ToString(5) << std::endl;
+      std::cout << cur_statement->ToString(5) << std::endl;
       return false;
     }
-    else if (curStatement->child_block_ != nullptr) {
+    else if (cur_statement->child_block_ != nullptr) {
       // Dealing with an NginxConfig Block
 
       // If we're looking at a Route configuration block, stop recursing and
-      // store its child block in the prefix_to_handler_name_ map.
-      if (numTokens == 3 && curStatement->tokens_[0] == "path") {
-        prefix_to_handler_name_[curStatement->tokens_[1]] = curStatement->tokens_[2];
+      // store the handler name in the prefix_to_handler_name_ map.
+      if (num_tokens == 3 && cur_statement->tokens_[0] == "path") {
+        prefix_to_handler_name_[cur_statement->tokens_[1]] = cur_statement->tokens_[2];
         continue;
       }
-      else if (numTokens == 2 && curStatement->tokens_[0] == "default") {
-        prefix_to_handler_name_["default"] = curStatement->tokens_[1];
+      else if (num_tokens == 2 && cur_statement->tokens_[0] == "default") {
+        prefix_to_handler_name_["default"] = cur_statement->tokens_[1];
         continue;
       }
       else {
-        std::vector<std::string> basePathExtended = basePath;
-        basePathExtended.push_back(buildWordyParam(config.statements_[i], 0));
-        return fillOutMaps(*(config.statements_[i]->child_block_), basePathExtended);
+        std::vector<std::string> base_path_extended = base_path;
+        base_path_extended.push_back(buildWordyParam(config.statements_[i], 0));
+        return fillOutMaps(*(config.statements_[i]->child_block_), base_path_extended);
       }
     }
     else {
       // Dealing with an NginxConfigStatement (no child block)
       // LeafTokens denote the number of 'words' in a statement w/o a child block
-      if (numTokens < 2) {
+      if (num_tokens < 2) {
         std::cout << "Invalid statement: no value associated with param\n";
-        std::cout << curStatement->ToString(5) << std::endl;
+        std::cout << cur_statement->ToString(5) << std::endl;
         return false;
       }
       size_t numLeafTokens = config.statements_[i]->tokens_.size();
-      std::vector<std::string> finalPath = basePath;
-      finalPath.push_back(buildWordyParam(config.statements_[i], 1));
-      path_to_values_[finalPath] = config.statements_[i]->tokens_[numLeafTokens-1];
+      std::vector<std::string> final_path = base_path;
+      final_path.push_back(buildWordyParam(config.statements_[i], 1));
+      path_to_values_[final_path] = config.statements_[i]->tokens_[numLeafTokens-1];
     }
   }
 
@@ -110,25 +110,25 @@ bool ServerConfig::fillOutMaps(NginxConfig config, std::vector<std::string> base
 
 // The outward facing interface of ServerConfig, returns an int representing the
 // status of the call and sets in *val, the value of the property passed in.
-bool ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath,
+bool ServerConfig::propertyLookUp(const std::vector<std::string>& property_path,
                                   std::string& val) const {
   std::unordered_map<std::vector<std::string>,
                      std::string,
                      container_hash<std::vector<std::string>>>::const_iterator it;
-  it = path_to_values_.find(propertyPath);
+  it = path_to_values_.find(property_path);
 
   if (it != path_to_values_.end()) {
     val = it->second;
 
     std::cout << "Found property '" << val << "' through path below:\n";
-    for (auto const& word : propertyPath) {
+    for (auto const& word : property_path) {
       std::cout << word << ".";
     }
     return true;
   }
   else {
     std::cout << "\nServerConfig propertyLookUp failed with the following path:\n";
-    for (auto const& word : propertyPath) {
+    for (auto const& word : property_path) {
       std::cout << word << ".";
     }
     std::cout << std::endl;
@@ -137,7 +137,7 @@ bool ServerConfig::propertyLookUp(const std::vector<std::string>& propertyPath,
 }
 
 // Getter for the prefix -> handler_name unordered map
-std::unordered_map<std::string, std::string> ServerConfig::allPaths() const {
+const std::unordered_map<std::string, std::string> ServerConfig::allPaths() const {
   return prefix_to_handler_name_;
 }
 
@@ -146,25 +146,25 @@ std::unordered_map<std::string, std::string> ServerConfig::allPaths() const {
 std::unique_ptr<NginxConfig> ServerConfig::getChildBlock(std::string uri_prefix) const {
   // Assumes that routes are specified at the top level of the config file
   for (size_t i = 0; i < config_.statements_.size(); i++) {
-    std::shared_ptr<NginxConfigStatement> curStatement = config_.statements_[i];
+    std::shared_ptr<NginxConfigStatement> cur_statement = config_.statements_[i];
 
     // Only look at Route configuration blocks in the config
-    size_t numTokens = curStatement->tokens_.size();
-    if (numTokens != 3 || curStatement->tokens_[0] != "path") {
+    size_t num_tokens = cur_statement->tokens_.size();
+    if (num_tokens != 3 || cur_statement->tokens_[0] != "path") {
       continue;
     }
 
     // If the uri_prefix matches the current block's path and it has
     // a child block, return that child block
-    if (curStatement->tokens_[1] == uri_prefix &&
-        curStatement->child_block_ != nullptr) {
-      return std::move(curStatement->child_block_);
+    if (cur_statement->tokens_[1] == uri_prefix &&
+        cur_statement->child_block_ != nullptr) {
+      return std::move(cur_statement->child_block_);
     }
   }
 
-  std::unique_ptr<NginxConfig> emptyConfig =
+  std::unique_ptr<NginxConfig> empty_config =
     std::unique_ptr<NginxConfig>(new NginxConfig());
-  return emptyConfig;
+  return empty_config;
 }
 
 // Print the contents of the mapping of 'path to config param' -> value
