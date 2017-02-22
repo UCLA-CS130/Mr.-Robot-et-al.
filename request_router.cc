@@ -57,5 +57,7 @@ std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& f
       }
     }
   }
-  // TODO: If no prefix found, return 404 handler
+  // If no prefix found, return the default handler
+  // (a default handler must always be specified in the config)
+  return handlers_map_.find("default")->second;
 }
