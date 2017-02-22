@@ -2,11 +2,12 @@
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
+#include <iostream>
 
 // Helper function to tokenize a string
-boost::tokenizer<boost::char_separator<char>> 
+boost::tokenizer<boost::char_separator<char>>
 tokenGenerator(const std::string s, const char* sep) {
-  // Tokenize the rest_lines 
+  // Tokenize the rest_lines
   boost::char_separator<char> separator(sep);
   boost::tokenizer<boost::char_separator<char>> tokens(s, separator);
   return tokens;
@@ -74,7 +75,7 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   // Tokenize rest_lines
   i = 0;
   std::string header_key = "";
-  for (auto cur_token_rest_lines = tokens2.begin(); 
+  for (auto cur_token_rest_lines = tokens2.begin();
        cur_token_rest_lines != tokens2.end(); cur_token_rest_lines++) {
     // end token can't be an even number
     auto temp = cur_token_rest_lines;

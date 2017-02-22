@@ -1,5 +1,7 @@
 #include "response.h"
+
 #include <boost/lexical_cast.hpp>
+#include <iostream>
 
 void Response::SetStatus(const ResponseCode response_code) {
   // boost lexical_cast will convert response_code of type int to type string
@@ -24,6 +26,6 @@ std::string Response::ToString() {
     response_headers_str += response_header_[i].first + ": "
                             + response_header_[i].second + "\r\n";
   }
-  return first_line_ + "\r\n" + response_headers_str + "\r\n" + 
+  return first_line_ + "\r\n" + response_headers_str + "\r\n" +
          response_body_ + "\r\n";
 }
