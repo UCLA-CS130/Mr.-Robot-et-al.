@@ -53,7 +53,12 @@ void LightningServer::start() {
     char* response_buffer = nullptr;
     size_t response_buffer_size  = 0;
 
-    // TODO: Initialize ServerConfig and RequestRouter
+    RequestRouter router;
+    if (! router.buildRoutes(server_config_)) {
+      std::cout << "Invalid routes in server config file\n";
+      return;
+    }
+
     // TODO: Route requests to their handlers
 
     // TODO: Use-after-free vulnerability if response_buffer is used after
