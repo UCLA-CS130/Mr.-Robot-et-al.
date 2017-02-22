@@ -44,8 +44,7 @@ std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& f
     }
     else {
       // Slice string from 0 to pos; substr takes start and length
-      // TODO: off-by-one?
-      std::string possible_prefix = full_uri.substr(0, full_uri.size() - pos);
+      std::string possible_prefix = full_uri.substr(0, pos);
       std::cerr << "RequestRouter::routeRequest prefix substring" << possible_prefix << std::endl;
 
       HandlersMap::const_iterator it = handlers_map_.find(possible_prefix);
