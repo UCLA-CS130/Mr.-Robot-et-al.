@@ -1,6 +1,8 @@
 #ifndef REQUEST_HANDLERS_H
 #define REQUEST_HANDLERS_H
 
+#include "server_config.h"
+
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
@@ -39,7 +41,7 @@ class EchoRequestHandler : public RequestHandler {
                       const NginxConfig& config);
 
     virtual Status handleRequest(const Request& request,
-                                 Response* response) = 0;
+                                 Response* response);
 };
 
 // Serve a up a file statically (without modifications)
@@ -49,7 +51,7 @@ class StaticRequestHandler : public RequestHandler {
                       const NginxConfig& config);
 
     virtual Status handleRequest(const Request& request,
-                                 Response* response) = 0;
+                                 Response* response);
 };
 
 // Return a 404 error page
@@ -59,7 +61,7 @@ class NotFoundRequestHandler : public RequestHandler {
                         const NginxConfig& config);
 
     virtual Status handleRequest(const Request& request,
-                                 Response* response) = 0;
+                                 Response* response);
 };
 
 #endif
