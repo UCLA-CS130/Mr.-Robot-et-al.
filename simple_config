@@ -2,13 +2,13 @@
 
 port 2020;  # This is also a comment.
 
-path / StaticHandler {
-  root /foo/bar;
+path /static StaticRequestHandler {
+  root /test;
 }
 
 # Empty config blocks are allowed; not all handlers need options
 # Currently: no default options for handlers
-path /echo EchoHandler {}
+path /echo EchoRequestHandler {}
 
 # Default response handler if no handlers match.
-default NotFoundHandler {}
+default NotFoundRequestHandler {}
