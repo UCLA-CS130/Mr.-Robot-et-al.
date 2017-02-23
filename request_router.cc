@@ -14,7 +14,7 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
       return false;
     }
     else {
-      if (! handler_instance.Init(uri_prefix, server_config.getChildBlock(uri_prefix))) {
+      if (! handler_instance->init(uri_prefix, *(server_config.getChildBlock(uri_prefix)))) {
         return false;
       }
 
