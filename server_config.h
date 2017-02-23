@@ -17,16 +17,17 @@ struct container_hash {
 
 class ServerConfig {
   public:
+    ServerConfig();
     ServerConfig(NginxConfig config);
     bool Build();
     bool propertyLookUp(const std::vector<std::string>& property_path,
                         std::string& val) const;
     const std::unordered_map<std::string, std::string> allPaths() const;
     std::unique_ptr<NginxConfig> getChildBlock(std::string uri_prefix) const;
+    void printPropertiesMap() const;
 
   private:
     bool fillOutMaps(NginxConfig config, std::vector<std::string> base_path);
-    void printPropertiesMap() const;
     NginxConfig config_;
     std::unordered_map<std::vector<std::string>,
                        std::string,
