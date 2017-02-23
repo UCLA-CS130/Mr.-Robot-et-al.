@@ -24,7 +24,7 @@ class RequestHandler {
     // Initializes the handler. Returns true if successful
     // uri_prefix is the value in the config file that this handler will run for.
     // config is the contents of the child block for this handler ONLY.
-    static std::unique_ptr<RequestHandler> CreateByName(const std::string type);
+    static RequestHandler* CreateByName(const std::string type);
 
     virtual bool init(const std::string& uri_prefix,
                       const NginxConfig& config) = 0;
@@ -44,13 +44,13 @@ class RequestHandler {
 // * request_handler_builders must be a pointer. Otherwise, it won't necessarily
 //   exist when the RequestHandlerRegisterer constructor gets called.
 
-extern std::map<std::string, std::unique_ptr<RequestHandler> (*)(void)>* request_handler_builders;
+extern std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders;
 template<typename T>
 class RequestHandlerRegisterer {
   public:
     RequestHandlerRegisterer(const std::string type) {
       if (request_handler_builders == nullptr) {
-        request_handler_builders = new std::map<std::string, std::unique_ptr<RequestHandler> (*)(void)>;
+        request_handler_builders = new std::map<std::string, RequestHandler* (*)(void)>;
       }
       (*request_handler_builders)[type] = RequestHandlerRegisterer::Create;
     }

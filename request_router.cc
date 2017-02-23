@@ -1,13 +1,22 @@
 #include "request_handlers.h"
 #include "request_router.h"
 
+RequestRouter::~RequestRouter() {
+  // TODO: do we need to delete the registered handlers?
+  /*
+  for (const auto pair : handlers_map_) {
+    delete pair->second;
+  }
+  */
+}
+
 bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
   // Iterate over uri_prefix -> handler_name map
   for (const auto path : server_config.allPaths()) {
     const std::string uri_prefix = path.first;
     const std::string handler_name = path.second;
 
-    std::unique_ptr<RequestHandler> handler_instance = RequestHandler::CreateByName(handler_name);
+    RequestHandler* handler_instance = RequestHandler::CreateByName(handler_name);
     if (handler_instance == nullptr) {
       return false;
     }
@@ -16,7 +25,7 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
         return false;
       }
 
-      handlers_map_[uri_prefix] = std::move(handler_instance);
+      handlers_map_[uri_prefix] = handler_instance;
     }
   }
 
@@ -25,7 +34,7 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
   return true;
 }
 
-std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& full_uri) const {
+RequestHandler* RequestRouter::routeRequest(const std::string& full_uri) const {
   // Starting at the end of the string,
   // try longest-prefix match up to latest forward-slash
   //
@@ -46,7 +55,6 @@ std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& f
       std::cerr << "RequestRouter::routeRequest prefix substring" << possible_prefix << std::endl;
 
       const auto it = handlers_map_.find(possible_prefix);
-      std::cout << "@@@@@@@@@@@@@@@@@@@@Handler's map find iterator" << it->first << std::endl;
       if (it == handlers_map_.end()) {
         continue;
       }

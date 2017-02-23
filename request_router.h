@@ -13,9 +13,8 @@
 // Also initializes and stores our long-lived RequestHandler instances
 class RequestRouter {
   public:
-    explicit RequestRouter();
-    RequestRouter(const RequestRouter&) = delete;
-    RequestRouter& operator=(const RequestRouter&) = delete;
+    ~RequestRouter();
+
     // Given a ServerConfig, initialize RequestHandler's and map URI prefixes
     // to them. Prefixes are assumed to be unique within the config file
     //
@@ -42,17 +41,16 @@ class RequestRouter {
     //
     // would give back DynamicServeHandler, not StaticHandler,
     // as /static1/subaction is the longest prefix that matches.
-    std::unique_ptr<RequestHandler> routeRequest(const std::string& full_uri) const;
+    RequestHandler* routeRequest(const std::string& full_uri) const;
 
   private:
     // Map URI prefixes to request handlers
     // TODO: Creating a unique_ptr to a polymorphic type in an <unordered_map>
     // requires a specialization of std::hash. We can use <map> for now
     // See: https://stackoverflow.com/questions/20965200/stdhash-for-unique-ptr-in-unordered-map
-    std::map<const std::string, std::unique_ptr<RequestHandler>>
-      handlers_map_;
+    std::map<const std::string, RequestHandler*> handlers_map_;
 
-    std::unique_ptr<RequestHandler> not_found_handler_;
+    RequestHandler* not_found_handler_;
 };
 
 #endif

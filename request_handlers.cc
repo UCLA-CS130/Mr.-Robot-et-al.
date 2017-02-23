@@ -15,9 +15,9 @@
 
 using boost::asio::ip::tcp;
 
-std::map<std::string, std::unique_ptr<RequestHandler> (*)(void)>* request_handler_builders = nullptr;
+std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders = nullptr;
 
-std::unique_ptr<RequestHandler> RequestHandler::CreateByName(const std::string type) {
+RequestHandler* RequestHandler::CreateByName(const std::string type) {
   const auto type_and_builder = request_handler_builders->find(type);
   if (type_and_builder == request_handler_builders->end()) {
     return nullptr;
