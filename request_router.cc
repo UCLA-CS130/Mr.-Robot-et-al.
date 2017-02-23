@@ -25,7 +25,7 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
         return false;
       }
 
-      handlers_map_[uri_prefix] = handler_instance;
+      handlers_map_[uri_prefix] = std::move(handler_instance);
     }
   }
   std::cout << "Finished registering handlers\n";

@@ -17,13 +17,15 @@ using boost::asio::ip::tcp;
 
 std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders = nullptr;
 
-RequestHandler* RequestHandler::CreateByName(const std::string type) {
+RequestHandler* RequestHandler::CreateByName(const char* type) {
   const auto type_and_builder = request_handler_builders->find(type);
   if (type_and_builder == request_handler_builders->end()) {
+    std::cout << "type_and_builder failed to find the type\n";
     return nullptr;
   }
   return (*type_and_builder->second)();
 }
+
 
 // Request Handlers instantiated by lightning_server::run()
 // looks at child block of each route
@@ -43,12 +45,14 @@ bool EchoRequestHandler::init(const std::string& uri_prefix,
 // original request.
 RequestHandler::Status EchoRequestHandler::handleRequest(const Request& request,
                                                          Response* response) {
+  std::cout << "EchoRequestHandler currently responding.\n";
 
   // Create response, defaulting to 200 OK status code for now
+  // TODO: for some reason, browser is interpreting the response as a binary file
   response->SetStatus(Response::OK);
-  response->AddHeader("Content-Type", "text/plain\r\n\r\n");
+  response->AddHeader("Content-Type", "text/plain");
   response->SetBody(request.raw_request());
-  std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << request.raw_request() << std::endl;
+  std::cout << "~~~~~~~~~~Response~~~~~~~~~~\n" << response->ToString() << std::endl;
 
   return RequestHandler::OK;
 }
@@ -96,6 +100,7 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   // lookup the 'root' path
   std::string resourceRoot;
   std::vector<std::string> query = {"root"};
+  config_.printPropertiesMap();
   config_.propertyLookUp(query, resourceRoot);
 
   // Construct the actual path to the requested file
@@ -105,7 +110,8 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
 
   // Check to make sure that file exists, and dispatch 404 handler if it doesn't
   if (!boost::filesystem::exists(full_path)) {
-    std::cout << "Dispatching 404 hander: file not found/doesn't exist\n";
+    std::cout << "Dispatching 404 handler. File not found/doesn't exist at: "
+              << full_path << std::endl;
     return RequestHandler::NOT_FOUND;
   }
 

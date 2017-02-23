@@ -45,9 +45,7 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   int i = 0;
   for (auto cur_token_first_line = tokens1.begin();
        cur_token_first_line != tokens1.end(); cur_token_first_line++) {
-    // std::cout << "token: " +  cur_token_first_line << std::endl;
     if  (cur_token_first_line == tokens1.end()) {
-      // TODO: tokens is too short
       std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
       break;
     }

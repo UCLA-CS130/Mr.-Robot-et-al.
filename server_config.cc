@@ -34,6 +34,10 @@ std::string buildWordyParam(std::shared_ptr<NginxConfigStatement> statement,
   return param_name;
 }
 
+// TODO: possibly dangerous, need to have a build method that takes a server config then
+ServerConfig::ServerConfig() {
+}
+
 // ServerConfig acts as a wrapper for NginxConfig objects, allowing for easier
 // retrieval of things like port, child blocks, and mappings from route
 // prefixes to handler names
@@ -48,7 +52,6 @@ ServerConfig::ServerConfig(NginxConfig config)
 // the map from prefix to handler_name.
 bool ServerConfig::Build() {
   std::vector<std::string> base_path = {};
-  printPropertiesMap();
   return fillOutMaps(config_, base_path);
 }
 
@@ -124,6 +127,7 @@ bool ServerConfig::propertyLookUp(const std::vector<std::string>& property_path,
     for (auto const& word : property_path) {
       std::cout << word << ".";
     }
+    std::cout << std::endl;
     return true;
   }
   else {
@@ -138,6 +142,7 @@ bool ServerConfig::propertyLookUp(const std::vector<std::string>& property_path,
 
 // Getter for the prefix -> handler_name unordered map
 const std::unordered_map<std::string, std::string> ServerConfig::allPaths() const {
+  printPropertiesMap();
   return prefix_to_handler_name_;
 }
 
@@ -170,17 +175,23 @@ std::unique_ptr<NginxConfig> ServerConfig::getChildBlock(std::string uri_prefix)
 // Print the contents of the mapping of 'path to config param' -> value
 void ServerConfig::printPropertiesMap() const {
   // Iterate over an unordered_map using range based for loop
-  std::cout << "Mappings in property_to_values_:\n" << std::endl;
+  std::cout << "Mappings in property_to_values_:\n";
+  std::cout << "~~~~~~~~~~~BEGIN~MAP~~~~~~~~~~~" << std::endl;
   for (auto element : path_to_values_) {
     for (auto const& key : element.first) {
       std::cout << key << ".";
     }
     std::cout << " -> " << element.second << std::endl;
   }
+  std::cout << "~~~~~~~~~~~~~END~MAP~~~~~~~~~~~" << std::endl;
+  std::cout << std::endl;
 
-  std::cout << "Mappings in prefix_to_handler_name_:\n" << std::endl;
+  std::cout << "Mappings in prefix_to_handler_name_:\n";
+  std::cout << "~~~~~~~~~~~BEGIN~MAP~~~~~~~~~~~" << std::endl;
   for (auto element : prefix_to_handler_name_) {
     std::cout << element.first << " -> " << element.second << std::endl;
   }
+  std::cout << "~~~~~~~~~~~~~END~MAP~~~~~~~~~~~" << std::endl;
+  std::cout << std::endl;
 }
 

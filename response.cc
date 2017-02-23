@@ -27,5 +27,5 @@ std::string Response::ToString() {
                             + response_header_[i].second + "\r\n";
   }
   return first_line_ + "\r\n" + response_headers_str + "\r\n" +
-         response_body_ + "\r\n";
+         response_body_;
 }
