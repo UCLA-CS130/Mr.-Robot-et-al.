@@ -62,14 +62,17 @@ class NotFoundRequestHandler : public RequestHandler {
                                  Response* response);
 };
 
-// StatusHandler
+// Return server statistics, like the routes and request-type counts
 class StatusHandler : public RequestHandler {
  public:
-    virtual bool init(const std::string& utl_prefix,
+    virtual bool init(const std::string& uri_prefix,
                       const NginxConfig& config);
-    virtual Status handleRequest(const Request& request, 
+
+    virtual Status handleRequest(const Request& request,
                                  Response* response);
+
     void setUpStats(const std::unique_ptr<ServerStats> server_stats);
+
  private:
     static std::unique_ptr<ServerStats> server_stats_;
 };

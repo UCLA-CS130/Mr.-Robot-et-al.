@@ -1,10 +1,11 @@
 #include "lightning_server.h"
-#include "request_handlers.h"
 #include "mime_types.h"
-#include "response.h"
 #include "request.h"
+#include "request_handlers.h"
+#include "response.h"
 #include "server_config.h"
 
+#include <iomanip>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
@@ -12,8 +13,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
-#include <<iomanip>
 
 using boost::asio::ip::tcp;
 
@@ -150,7 +149,11 @@ struct container_hash {
   }
 };
 
-RequestHandler::Status StatusHandler::handleRequest(const Request& request, 
+void StatusHandler::setUpStats(const std::unique_ptr<ServerStats> server_stats) {
+  server_stats_ = server_stats;
+}
+
+RequestHandler::Status StatusHandler::handleRequest(const Request& request,
                                                     Response* response) {
 
   // Get the prefix-to-handler map
@@ -159,8 +162,8 @@ RequestHandler::Status StatusHandler::handleRequest(const Request& request,
   std::unordered_map<std::vector<string>,
                      std::int,
                      container_hash<std::vector<string>>> tuple_to_count = server_stats_->GetTupleToCount();
-  // Print both out nicely in response
 
+  // Print both out nicely in response
   std::string reply = "Available Handlers\n";
   for (auto it : prefix_to_handlers) {
     std::string line = it.first + " <--- " + it.second + "\n";
