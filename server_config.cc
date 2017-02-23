@@ -168,7 +168,7 @@ std::unique_ptr<NginxConfig> ServerConfig::getChildBlock(std::string uri_prefix)
 }
 
 // Print the contents of the mapping of 'path to config param' -> value
-void ServerConfig::printPropertiesMap() {
+void ServerConfig::printPropertiesMap() const {
   // Iterate over an unordered_map using range based for loop
   std::cout << "Mappings in property_to_values_:\n" << std::endl;
   for (auto element : path_to_values_) {
@@ -180,10 +180,7 @@ void ServerConfig::printPropertiesMap() {
 
   std::cout << "Mappings in prefix_to_handler_name_:\n" << std::endl;
   for (auto element : prefix_to_handler_name_) {
-    for (auto const& key : element.first) {
-      std::cout << key << ".";
-    }
-    std::cout << " -> " << element.second << std::endl;
+    std::cout << element.first << " -> " << element.second << std::endl;
   }
 }
 

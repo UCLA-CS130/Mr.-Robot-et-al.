@@ -15,6 +15,16 @@
 
 using boost::asio::ip::tcp;
 
+std::map<std::string, std::unique_ptr<RequestHandler> (*)(void)>* request_handler_builders = nullptr;
+
+std::unique_ptr<RequestHandler> RequestHandler::CreateByName(const std::string type) {
+  const auto type_and_builder = request_handler_builders->find(type);
+  if (type_and_builder == request_handler_builders->end()) {
+    return nullptr;
+  }
+  return (*type_and_builder->second)();
+}
+
 // Request Handlers instantiated by lightning_server::run()
 // looks at child block of each route
 // constructs ServerConfig for each to look at root /exampleuri/something

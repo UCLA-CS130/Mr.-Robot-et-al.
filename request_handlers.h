@@ -24,6 +24,8 @@ class RequestHandler {
     // Initializes the handler. Returns true if successful
     // uri_prefix is the value in the config file that this handler will run for.
     // config is the contents of the child block for this handler ONLY.
+    static std::unique_ptr<RequestHandler> CreateByName(const std::string type);
+
     virtual bool init(const std::string& uri_prefix,
                       const NginxConfig& config) = 0;
 
@@ -33,6 +35,32 @@ class RequestHandler {
     std::string uri_prefix_;
     ServerConfig config_;
 };
+
+// Notes:
+// * The trick here is that you can declare an object at file scope, but you
+//   can't do anything else, such as set a map key. But you can get around this
+//   by creating a class that does work in its constructor.
+//
+// * request_handler_builders must be a pointer. Otherwise, it won't necessarily
+//   exist when the RequestHandlerRegisterer constructor gets called.
+
+extern std::map<std::string, std::unique_ptr<RequestHandler> (*)(void)>* request_handler_builders;
+template<typename T>
+class RequestHandlerRegisterer {
+  public:
+    RequestHandlerRegisterer(const std::string type) {
+      if (request_handler_builders == nullptr) {
+        request_handler_builders = new std::map<std::string, std::unique_ptr<RequestHandler> (*)(void)>;
+      }
+      (*request_handler_builders)[type] = RequestHandlerRegisterer::Create;
+    }
+    static RequestHandler* Create() {
+      return new T;
+    }
+};
+
+#define REGISTER_REQUEST_HANDLER(ClassName) \
+  static RequestHandlerRegisterer<ClassName> ClassName##__registerer(#ClassName)
 
 // Echo the request that was received in the body of the response
 class EchoRequestHandler : public RequestHandler {
@@ -64,4 +92,5 @@ class NotFoundRequestHandler : public RequestHandler {
                                  Response* response);
 };
 
-#endif
+#endif  // REQUEST_HANDLER_H
+

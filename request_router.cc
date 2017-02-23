@@ -1,8 +1,6 @@
 #include "request_handlers.h"
 #include "request_router.h"
 
-typedef std::map<const std::string, const std::unique_ptr<RequestHandler>> HandlersMap;
-
 bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
   // Iterate over uri_prefix -> handler_name map
   for (const auto path : server_config.allPaths()) {
@@ -18,7 +16,7 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
         return false;
       }
 
-      handlers_map_[uri_prefix] = handler_instance;
+      handlers_map_[uri_prefix] = std::move(handler_instance);
     }
   }
 
@@ -47,7 +45,8 @@ std::unique_ptr<RequestHandler> RequestRouter::routeRequest(const std::string& f
       std::string possible_prefix = full_uri.substr(0, pos);
       std::cerr << "RequestRouter::routeRequest prefix substring" << possible_prefix << std::endl;
 
-      HandlersMap::const_iterator it = handlers_map_.find(possible_prefix);
+      const auto it = handlers_map_.find(possible_prefix);
+      std::cout << "@@@@@@@@@@@@@@@@@@@@Handler's map find iterator" << it->first << std::endl;
       if (it == handlers_map_.end()) {
         continue;
       }

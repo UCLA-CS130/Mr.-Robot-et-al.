@@ -26,7 +26,7 @@ class ServerConfig {
 
   private:
     bool fillOutMaps(NginxConfig config, std::vector<std::string> base_path);
-    void printPropertiesMap();
+    void printPropertiesMap() const;
     NginxConfig config_;
     std::unordered_map<std::vector<std::string>,
                        std::string,
