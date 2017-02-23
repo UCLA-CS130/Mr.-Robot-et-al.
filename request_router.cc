@@ -16,7 +16,7 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
     const std::string uri_prefix = path.first;
     const std::string handler_name = path.second;
 
-    RequestHandler* handler_instance = RequestHandler::CreateByName(handler_name);
+    RequestHandler* handler_instance = RequestHandler::CreateByName(handler_name.c_str());
     if (handler_instance == nullptr) {
       return false;
     }
@@ -28,9 +28,11 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
       handlers_map_[uri_prefix] = handler_instance;
     }
   }
+  std::cout << "Finished registering handlers\n";
 
   // Build special 404 route, which is our fall-through error case
-  not_found_handler_ = RequestHandler::CreateByName("NotFoundHandler");
+  not_found_handler_ = RequestHandler::CreateByName("NotFoundRequestHandler");
+  std::cout << "Finished creating not found handler\n";
   return true;
 }
 
@@ -51,8 +53,16 @@ RequestHandler* RequestRouter::routeRequest(const std::string& full_uri) const {
     }
     else {
       // Slice string from 0 to pos; substr takes start and length
-      std::string possible_prefix = full_uri.substr(0, pos);
-      std::cerr << "RequestRouter::routeRequest prefix substring" << possible_prefix << std::endl;
+      // (unless there is only one '/', then use the whole uri)
+      std::string possible_prefix;
+      if (pos == 0) {
+        possible_prefix = full_uri;
+      }
+      else {
+        possible_prefix = full_uri.substr(0, pos);
+      }
+
+      std::cerr << "RequestRouter::routeRequest prefix substring = " << possible_prefix << std::endl;
 
       const auto it = handlers_map_.find(possible_prefix);
       if (it == handlers_map_.end()) {
