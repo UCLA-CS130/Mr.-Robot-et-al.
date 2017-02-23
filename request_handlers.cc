@@ -32,8 +32,9 @@ RequestHandler* RequestHandler::CreateByName(const std::string type) {
 bool EchoRequestHandler::init(const std::string& uri_prefix,
                               const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
-  config_ = config;
-
+  config_ = ServerConfig(config);
+  // TODO: do logging/check return value of Build
+  config_.Build();
   return true;
 }
 
@@ -55,13 +56,15 @@ RequestHandler::Status EchoRequestHandler::handleRequest(const Request& request,
 bool StaticRequestHandler::init(const std::string& uri_prefix,
                                 const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
-  config_ = config;
-
+  config_ = ServerConfig(config);
+  // TODO: do logging/check return value of Build
+  config_.Build();
   return true;
 }
 
 RequestHandler::Status StaticRequestHandler::handleRequest(const Request& request,
                                                            Response* response) {
+  std::cout << "StaticRequestHandler currently responding.\n";
 
   std::string request_path = request.uri();
 
@@ -124,13 +127,15 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
 bool NotFoundRequestHandler::init(const std::string& uri_prefix,
                                   const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
-  config_ = config;
-
+  config_ = ServerConfig(config);
+  // TODO: do logging/check return value of Build
+  config_.Build();
   return true;
 }
 
 RequestHandler::Status NotFoundRequestHandler::handleRequest(const Request& request,
                                                              Response* response) {
+  std::cout << "NotFoundRequestHandler currently responding.\n";
 
   const std::string not_found_response_html =
     "<html>\n<head>\n"
