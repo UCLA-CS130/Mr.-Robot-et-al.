@@ -82,9 +82,8 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   // Since we're passed in the child block of the route block, we can directly
   // lookup the 'root' path
   std::string resourceRoot;
-  std::vector<std::string> query = {"path"};
-  // TODO: how do we access the server config from within a handler now?
-  server_config.propertyLookUp(query, resourceRoot);
+  std::vector<std::string> query = {"root"};
+  config_.propertyLookUp(query, resourceRoot);
 
   // Construct the actual path to the requested file
   boost::filesystem::path root_path(boost::filesystem::current_path());
@@ -94,9 +93,6 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   // Check to make sure that file exists, and dispatch 404 handler if it doesn't
   if (!boost::filesystem::exists(full_path)) {
     std::cout << "Dispatching 404 hander: file not found/doesn't exist\n";
-    // TODO: how do we access the long lived handlers from in here?
-    NotFoundRequestHandler notFoundHandler;
-    notFoundHandler.handleRequest(request, response);
     return RequestHandler::NOT_FOUND;
   }
 
