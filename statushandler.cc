@@ -157,11 +157,11 @@ RequestHandler::Status StatusHandler::handleRequest(const Request& request,
                                                     Response* response) {
 
   // Get the prefix-to-handler map
-  std::unordered_map<std::string, std::string> prefix_to_handlers = server_stats_->GetPrefixToHandlers();
+  std::unordered_map<std::string, std::string> prefix_to_handlers = server_stats_->allRoutes();
   // Get the (url, status_code)-to-count map
   std::unordered_map<std::vector<string>,
                      std::int,
-                     container_hash<std::vector<string>>> tuple_to_count = server_stats_->GetTupleToCount();
+                     container_hash<std::vector<string>>> tuple_to_count = server_stats_->handlerCallDistribution();
 
   // Print both out nicely in response
   std::string reply = "Available Handlers\n";
