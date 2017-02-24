@@ -122,7 +122,7 @@ class StatusHandler : public RequestHandler {
     void setUpStats(ServerStats* server_stats);
 
  private:
-    static ServerStats* server_stats_;
+    ServerStats* server_stats_;
 };
 
 REGISTER_REQUEST_HANDLER(StatusHandler);
