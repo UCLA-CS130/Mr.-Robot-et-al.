@@ -1,18 +1,18 @@
 #include "server_stats.h"
 
 bool ServerStats::recordRequest(Request request) {
-  // TODO
+  // TODO: Ask for uri()
 }
 
 bool ServerStats::recordResponse(Response response) {
-  // TODO
+  // TODO: Write new statusCode() getter
 }
 void ServerStats::recordConfig(ServerConfig server_config) {
-  // TODO
+  prefixes_to_handlers_ = server_config.allPaths();
 }
 
 std::unordered_map<string, string> ServerStats::allRoutes() const {
-  // TODO
+  return prefixes_to_handlers_;
 }
 
 std::unordered_map<std::vector<string>,
