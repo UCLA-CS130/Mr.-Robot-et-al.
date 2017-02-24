@@ -25,8 +25,12 @@ void LightningServer::start() {
     return;
   }
 
+  // All server stats are recorded into this single instance
+  ServerStats server_stats;
+  server_stats.recordConfig(server_config_);
+
   // Register and initialize the routers
-  RequestRouter router;
+  RequestRouter router(&server_stats);
   if (! router.buildRoutes(server_config_)) {
     std::cout << "Invalid routes in server config file\n";
     return;
@@ -73,6 +77,8 @@ void LightningServer::start() {
     // Routing requests to their handlers
     RequestHandler* handler = router.routeRequest(request->uri());
     RequestHandler::Status status_code = handler->handleRequest(*request, &response);
+
+    server_stats.recordInteraction(*request, response);
 
     // Write back response
     std::string response_string = response.ToString();

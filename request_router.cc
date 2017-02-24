@@ -1,6 +1,10 @@
 #include "request_handlers.h"
 #include "request_router.h"
 
+RequestRouter::RequestRouter(ServerStats* server_stats) {
+  server_stats_ = server_stats;
+}
+
 RequestRouter::~RequestRouter() {
   // TODO: do we need to delete the registered handlers?
   /*
@@ -23,6 +27,12 @@ bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
     else {
       if (! handler_instance->init(uri_prefix, *(server_config.getChildBlock(uri_prefix)))) {
         return false;
+      }
+
+      // If we have a StatusHandler, give it access to our ServerStats
+      StatusHandler* status_handler = dynamic_cast<StatusHandler*>(handler_instance);
+      if (status_handler != nullptr) {
+        status_handler->setUpStats(server_stats_);
       }
 
       handlers_map_[uri_prefix] = std::move(handler_instance);

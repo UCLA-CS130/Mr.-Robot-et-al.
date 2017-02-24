@@ -7,12 +7,15 @@
 #include <memory>
 #include <map>
 
+class ServerStats;
+
 // Stores and allows access to the mapping of (uri_prefix -> RequestHandler),
 // which we call a "route".
 //
 // Also initializes and stores our long-lived RequestHandler instances
 class RequestRouter {
   public:
+    RequestRouter(ServerStats* server_stats);
     ~RequestRouter();
 
     // Given a ServerConfig, initialize RequestHandler's and map URI prefixes
@@ -51,6 +54,7 @@ class RequestRouter {
     std::map<const std::string, RequestHandler*> handlers_map_;
 
     RequestHandler* not_found_handler_;
+    ServerStats* server_stats_;
 };
 
 #endif
