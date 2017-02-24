@@ -13,22 +13,21 @@
 
 class RequestHandlersTest : public ::testing::Test {
 protected:
-  NginxConfig config;
-  NginxConfigParser config_parser;
-  ServerConfig server_config;
+  NginxConfig config_;
+  NginxConfigParser config_parser_;
+  ServerConfig server_config_;
 
   Request request;
   Response response;
 
   bool prepareRequest(const std::string raw_request) {
     // Read config file
-    config_parser.Parse("simple_config", &config);
-    server_config = ServerConfig(config);
-    server_config.build();
+    config_parser_.Parse("simple_config", &config_);
+    server_config_ = ServerConfig(config_);
+    server_config_.build();
 
     request = *(Request::Parse(raw_request));
 
-    // TODO: Update tests for new RequestRouter/RequestHandler interface
     return true;
   }
 };
@@ -44,7 +43,7 @@ TEST_F(RequestHandlersTest, EchoHandlerTest) {
   ASSERT_TRUE(prepareRequest(raw_request));
 
   EchoRequestHandler echo_handler;
-  bool init_ec = echo_handler.init("/echo", config);
+  bool init_ec = echo_handler.init("/echo", config_);
   EXPECT_EQ(init_ec, true)
     << "Echo handler should correctly initialize using 'simple_config'";
 
@@ -76,7 +75,7 @@ TEST_F(RequestHandlersTest, StaticHandlerHTMLTest) {
 
   StaticRequestHandler static_handler;
   bool init_ec = static_handler.init("/static",
-                                     *(server_config.getChildBlock("/static")));
+                                     *(server_config_.getChildBlock("/static")));
   EXPECT_EQ(init_ec, true)
     << "Static handler should correctly initialize using 'simple_config'";
 
@@ -107,7 +106,7 @@ TEST_F(RequestHandlersTest, StaticHandlerFileNotFoundTest) {
 
   StaticRequestHandler static_handler;
   bool init_ec = static_handler.init("/static",
-                                     *(server_config.getChildBlock("/static")));
+                                     *(server_config_.getChildBlock("/static")));
   EXPECT_EQ(init_ec, true)
     << "Static handler should correctly initialize using 'simple_config'";
 
@@ -128,7 +127,7 @@ TEST_F(RequestHandlersTest, StaticHandlerPNGTest) {
 
   StaticRequestHandler static_handler;
   bool init_ec = static_handler.init("/static",
-                                     *(server_config.getChildBlock("/static")));
+                                     *(server_config_.getChildBlock("/static")));
   EXPECT_EQ(init_ec, true)
     << "Static handler should correctly initialize using 'simple_config'";
 
@@ -159,7 +158,7 @@ TEST_F(RequestHandlersTest, StaticHandlerGIFTest) {
 
   StaticRequestHandler static_handler;
   bool init_ec = static_handler.init("/static",
-                                     *(server_config.getChildBlock("/static")));
+                                     *(server_config_.getChildBlock("/static")));
   EXPECT_EQ(init_ec, true)
     << "Static handler should correctly initialize using 'simple_config'";
 
@@ -190,7 +189,7 @@ TEST_F(RequestHandlersTest, NotFoundHandlerTest) {
 
   NotFoundRequestHandler not_found_handler;
   bool init_ec = not_found_handler.init("default",
-                                        *(server_config.getChildBlock("default")));
+                                        *(server_config_.getChildBlock("default")));
   EXPECT_EQ(init_ec, true)
     << "Not found handler should correctly initialize using 'simple_config'";
 
