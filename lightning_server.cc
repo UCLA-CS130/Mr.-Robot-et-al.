@@ -20,7 +20,7 @@ LightningServer::~LightningServer() {}
 
 void LightningServer::start() {
   // Parse the config file
-  if (! server_config_.Build()) {
+  if (! server_config_.build()) {
     std::cout << "Stopping server: invalid config\n";
     return;
   }

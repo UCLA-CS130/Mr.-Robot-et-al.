@@ -24,19 +24,19 @@ TEST_F(ServerConfigTest, BuildOK) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("port 8080; \
                      path /echo EchoHandler {}");
-    bool ec = server_config->Build();
+    bool ec = server_config->build();
 
     EXPECT_EQ(true, ec)
-      << "Build() should return true if a valid config is supplied to \
+      << "build() should return true if a valid config is supplied to \
           a ServerConfig object";
 }
 
 TEST_F(ServerConfigTest, BuildFailed) {
     std::unique_ptr<ServerConfig> server_config = ParseString("");
-    bool ec = server_config->Build();
+    bool ec = server_config->build();
 
     EXPECT_EQ(false, ec)
-      << "Build() should return false if an empty config is supplied";
+      << "build() should return false if an empty config is supplied";
 }
 
 TEST_F(ServerConfigTest, AllPathsNotEmpty) {
@@ -44,9 +44,9 @@ TEST_F(ServerConfigTest, AllPathsNotEmpty) {
       = ParseString("port 8080; \
                      path /echo EchoHandler {} \
                      default NotFoundHandler {}");
-    bool ec = server_config->Build();
+    bool ec = server_config->build();
     EXPECT_EQ(true, ec)
-      << "Build() should return true if a valid config is supplied";
+      << "build() should return true if a valid config is supplied";
 
     std::unordered_map<std::string, std::string> paths = server_config->allPaths();
     EXPECT_EQ(false, paths.empty())
@@ -58,9 +58,9 @@ TEST_F(ServerConfigTest, AllPathsNotEmpty) {
 
 TEST_F(ServerConfigTest, AllPathsEmpty) {
     std::unique_ptr<ServerConfig> server_config = ParseString("port 8080;");
-    bool ec = server_config->Build();
+    bool ec = server_config->build();
     EXPECT_EQ(true, ec)
-      << "Build() should return true if a valid config is supplied";
+      << "build() should return true if a valid config is supplied";
 
     std::unordered_map<std::string, std::string> paths = server_config->allPaths();
     EXPECT_EQ(true, paths.empty())
@@ -73,9 +73,9 @@ TEST_F(ServerConfigTest, HasChildBlock) {
                      path / StaticHandler { \
                        root /foo/bar \
                      }");
-    bool ec = server_config->Build();
+    bool ec = server_config->build();
     EXPECT_EQ(true, ec)
-      << "Build() should return true if a valid config is supplied";
+      << "build() should return true if a valid config is supplied";
 
     std::unique_ptr<NginxConfig> childBlock = server_config->getChildBlock("/");
     EXPECT_EQ(1, childBlock->statements_.size())
@@ -86,9 +86,9 @@ TEST_F(ServerConfigTest, EmptyChildBlock) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("port 8080; \
                      path / StaticHandler {}");
-    bool ec = server_config->Build();
+    bool ec = server_config->build();
     EXPECT_EQ(true, ec)
-      << "Build() should return true if a valid config is supplied";
+      << "build() should return true if a valid config is supplied";
 
     std::unique_ptr<NginxConfig> childBlock = server_config->getChildBlock("/");
     EXPECT_EQ(0, childBlock->statements_.size())
@@ -97,9 +97,9 @@ TEST_F(ServerConfigTest, EmptyChildBlock) {
 
 TEST_F(ServerConfigTest, NoPortConfig) {
     std::unique_ptr<ServerConfig> server_config = ParseString("server { ACM Hack; }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"server", "port"};
     std::string port = "";
@@ -113,9 +113,9 @@ TEST_F(ServerConfigTest, NoPortConfig) {
 
 TEST_F(ServerConfigTest, PortNumberMissing) {
     std::unique_ptr<ServerConfig> server_config = ParseString("port;");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(false, buildCode)
-      << "Build() should return false when given a config property has no value.";
+      << "build() should return false when given a config property has no value.";
 
     std::vector<std::string> query = {"port"};
     std::string port = "";
@@ -129,9 +129,9 @@ TEST_F(ServerConfigTest, PortNumberMissing) {
 
 TEST_F(ServerConfigTest, PortPropertyOnly) {
     std::unique_ptr<ServerConfig> server_config = ParseString("port 1234;");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"port"};
     std::string port = "";
@@ -145,9 +145,9 @@ TEST_F(ServerConfigTest, PortPropertyOnly) {
 
 TEST_F(ServerConfigTest, NestedPortNumberMissing) {
     std::unique_ptr<ServerConfig> server_config = ParseString("server { port; }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(false, buildCode)
-      << "Build() should return false when given a property has no value";
+      << "build() should return false when given a property has no value";
 
     std::vector<std::string> query = {"server", "port"};
     std::string port = "";
@@ -162,9 +162,9 @@ TEST_F(ServerConfigTest, NestedPortNumberMissing) {
 
 TEST_F(ServerConfigTest, NonsenseQueryPath) {
     std::unique_ptr<ServerConfig> server_config = ParseString("port 1234;");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"laksdj3"};
     std::string port = "";
@@ -177,9 +177,9 @@ TEST_F(ServerConfigTest, NonsenseQueryPath) {
 TEST_F(ServerConfigTest, SingleNestedPort) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("server { port 1234; }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"server", "port"};
     std::string port = "";
@@ -195,9 +195,9 @@ TEST_F(ServerConfigTest, SingleNestedPort) {
 TEST_F(ServerConfigTest, DoublyNestedPort) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("outer { server { port 1234; } }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> first_query = {"outer", "server", "port"};
     std::string first_port = "";
@@ -221,9 +221,9 @@ TEST_F(ServerConfigTest, DoublyNestedPort) {
 TEST_F(ServerConfigTest, NonPortPropertiesPresent) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("server { echo true; port 1234; }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"server", "port"};
     std::string port = "";
@@ -240,9 +240,9 @@ TEST_F(ServerConfigTest, NonPortPropertiesPresent) {
 TEST_F(ServerConfigTest, HighlyNestedPropertiesSet) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("outer { server { echo true; port 1234; } }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"outer", "server", "port"};
     std::string port = "";
@@ -258,9 +258,9 @@ TEST_F(ServerConfigTest, HighlyNestedPropertiesSet) {
 TEST_F(ServerConfigTest, PropertiesSetWithNewlines) {
     std::unique_ptr<ServerConfig> server_config
       = ParseString("server { echo \ntrue; port \n1234; }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"server", "port"};
     std::string port = "";
@@ -282,9 +282,9 @@ TEST_F(ServerConfigTest, MultiWordProperties) {
                          action echo; \
                        } \
                      }");
-    bool buildCode = server_config->Build();
+    bool buildCode = server_config->build();
     EXPECT_EQ(true, buildCode)
-      << "Build() should return true when given a valid config";
+      << "build() should return true when given a valid config";
 
     std::vector<std::string> query = {"server", "location /echo", "action"};
     std::string action = "";

@@ -35,8 +35,8 @@ bool EchoRequestHandler::init(const std::string& uri_prefix,
                               const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
   config_ = ServerConfig(config);
-  // TODO: do logging/check return value of Build
-  config_.Build();
+  // TODO: do logging/check return value of build
+  config_.build();
   return true;
 }
 
@@ -48,7 +48,6 @@ RequestHandler::Status EchoRequestHandler::handleRequest(const Request& request,
   std::cout << "EchoRequestHandler currently responding.\n";
 
   // Create response, defaulting to 200 OK status code for now
-  // TODO: for some reason, browser is interpreting the response as a binary file
   response->SetStatus(Response::OK);
   response->AddHeader("Content-Type", "text/plain");
   response->SetBody(request.raw_request());
@@ -61,8 +60,8 @@ bool StaticRequestHandler::init(const std::string& uri_prefix,
                                 const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
   config_ = ServerConfig(config);
-  // TODO: do logging/check return value of Build
-  config_.Build();
+  // TODO: do logging/check return value of build
+  config_.build();
   return true;
 }
 
@@ -134,8 +133,8 @@ bool NotFoundRequestHandler::init(const std::string& uri_prefix,
                                   const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
   config_ = ServerConfig(config);
-  // TODO: do logging/check return value of Build
-  config_.Build();
+  // TODO: do logging/check return value of build
+  config_.build();
   return true;
 }
 

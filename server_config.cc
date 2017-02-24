@@ -47,10 +47,10 @@ ServerConfig::ServerConfig(NginxConfig config)
   // Store raw NginxConfig for use in getting child blocks
 }
 
-// Initializer for a ServerConfig object, Build() iterates through the passed
+// Initializer for a ServerConfig object, build() iterates through the passed
 // in config, creating both the map from path to property values as well as
 // the map from prefix to handler_name.
-bool ServerConfig::Build() {
+bool ServerConfig::build() {
   std::vector<std::string> base_path = {};
   return fillOutMaps(config_, base_path);
 }

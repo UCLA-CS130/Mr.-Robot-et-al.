@@ -19,7 +19,7 @@ class ServerConfig {
   public:
     ServerConfig();
     ServerConfig(NginxConfig config);
-    bool Build();
+    bool build();
     bool propertyLookUp(const std::vector<std::string>& property_path,
                         std::string& val) const;
     const std::unordered_map<std::string, std::string> allPaths() const;
