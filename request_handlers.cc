@@ -172,7 +172,7 @@ RequestHandler::Status StatusHandler::handleRequest(const Request& request,
   // Get the (url, status_code)-to-count map
   std::unordered_map<std::vector<string>,
                      int,
-                     container_hash<std::vector<string>>>
+                     tuple_hash<std::vector<string>>>
   tuple_to_count
     = server_stats_->handlerCallDistribution();
 
