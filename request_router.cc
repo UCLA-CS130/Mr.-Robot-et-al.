@@ -1,103 +1,90 @@
-#include "request_router.h"
 #include "request_handlers.h"
+#include "request_router.h"
 
-#include <boost/tokenizer.hpp>
+RequestRouter::RequestRouter(ServerStats* server_stats) {
+  server_stats_ = server_stats;
+}
 
-// TODO: Split out HTTP parsing into its own class
-bool RequestRouter::routeRequest(const ServerConfig& server_config,
-                                 const char* request_buffer,
-                                 const size_t& request_buffer_size,
-                                 char* &response_buffer,
-                                 size_t& response_buffer_size) {
+RequestRouter::~RequestRouter() {
+  // TODO: do we need to delete the registered handlers?
+  /*
+  for (const auto pair : handlers_map_) {
+    delete pair->second;
+  }
+  */
+}
 
-  // Tokenize the request so it's easy to extract the resource path
-  const std::string request(request_buffer);
-  boost::char_separator<char> separator(" ");
-  boost::tokenizer<boost::char_separator<char>> tokens(request, separator);
+bool RequestRouter::buildRoutes(const ServerConfig& server_config) {
+  // Iterate over uri_prefix -> handler_name map
+  for (const auto path : server_config.allPaths()) {
+    const std::string uri_prefix = path.first;
+    const std::string handler_name = path.second;
 
-  // We assume that files are stored at the top level and won't recursively
-  // search for the requested file. Also, that routing in the config is
-  // specified within the server block.
-  std::vector<std::string> query = {"server"};
-  // We assume the 2nd token is the resource path: GET /path/to/resource.txt
-  int i = 0;
-  auto curToken = tokens.begin();
-  std::string resourcePath;
-  for (;;) {
-    if (curToken == tokens.end()) {
-      // TODO: tokens is too short
-      std::cout << "DEBUG: tokens in RequestRouter is too short" << std::endl;
-      break;
+    RequestHandler* handler_instance = RequestHandler::CreateByName(handler_name.c_str());
+    if (handler_instance == nullptr) {
+      return false;
     }
+    else {
+      if (! handler_instance->init(uri_prefix, *(server_config.getChildBlock(uri_prefix)))) {
+        return false;
+      }
 
-    if (i == 1) {
-      resourcePath = *curToken;
+      // If we have a StatusHandler, give it access to our ServerStats
+      StatusHandler* status_handler = dynamic_cast<StatusHandler*>(handler_instance);
+      if (status_handler != nullptr) {
+        status_handler->setUpStats(server_stats_);
+      }
+
+      handlers_map_[uri_prefix] = std::move(handler_instance);
     }
+  }
+  std::cout << "Finished registering handlers\n";
 
-    i++;
-    curToken++;
-  }
+  // Build special 404 route, which is our fall-through error case
+  not_found_handler_ = RequestHandler::CreateByName("NotFoundRequestHandler");
+  std::cout << "Finished creating not found handler\n";
+  return true;
+}
 
-  std::cout << "searching: " << resourcePath << " for last '/'\n";
-  const size_t indexLastSlash = resourcePath.find_last_of("/");
-  std::cout << "index of lastSlash = " << indexLastSlash << std::endl;
-  if (indexLastSlash == std::string::npos) {
-    std::cout << "Invalid request\n";
-    return false;
-  }
+RequestHandler* RequestRouter::routeRequest(const std::string& full_uri) const {
+  // Starting at the end of the string,
+  // try longest-prefix match up to latest forward-slash
+  //
+  // Example: for the full_uri '/echo/subaction/subdir/file.txt',
+  // we try '/echo/subaction/subdir', then '/echo/subaction',
+  // and finally '/echo'.
+  //
+  // Note the lack of trailing slashes
+  // See also: http://www.cplusplus.com/reference/string/string/find_first_of/
+  for (int search_index = full_uri.size() - 1; search_index >= 0; search_index--) {
+    size_t pos = full_uri.find_first_of('/', search_index);
+    if (pos == std::string::npos) {
+      continue;
+    }
+    else {
+      // Slice string from 0 to pos; substr takes start and length
+      // (unless there is only one '/', then use the whole uri)
+      std::string possible_prefix;
+      if (pos == 0) {
+        possible_prefix = full_uri;
+      }
+      else {
+        possible_prefix = full_uri.substr(0, pos);
+      }
 
-  // Checking for a file extension to make sure the path given includes a
-  // resource (/echo vs /static/file.jpg vs /static/otherroute)
-  if (resourcePath.substr(indexLastSlash).find(".") != std::string::npos) {
-    std::string resourceRoot = resourcePath.substr(0, indexLastSlash);
-    query.push_back("location " + resourceRoot);
-    std::cout << "HERE in if: " << "location " << resourceRoot << std::endl;
-  }
-  else {
-    query.push_back("location " + resourcePath);
-    std::cout << "HERE in else: " << "location " << resourcePath << std::endl;
-  }
-  query.push_back("action");
+      std::cerr << "RequestRouter::routeRequest prefix substring = " << possible_prefix << std::endl;
 
-
-  std::cout << "~~begin query~~\n";
-  for (auto const& word : query) {
-    std::cout << word << ".";
+      const auto it = handlers_map_.find(possible_prefix);
+      if (it == handlers_map_.end()) {
+        continue;
+      }
+      else {
+        // Found the matching longest-prefix; return corresponding handler
+        return it->second;
+      }
+    }
   }
-  std::cout << "\n~~end query~~\n";
-
-  std::string action;
-  server_config.propertyLookUp(query, action);
-  std::cout << "action: " << action << std::endl;
-
-  if (action == "echo") {
-    std::cout << "Dispatching echo handler\n";
-    EchoRequestHandler echoHandler;
-    echoHandler.handleRequest(server_config,
-                              request_buffer,
-                              request_buffer_size,
-                              response_buffer,
-                              response_buffer_size);
-    return true;
-  }
-  else if (action == "static_serve") {
-    std::cout << "Dispatching static file handler\n";
-    StaticRequestHandler staticHandler;
-    staticHandler.handleRequest(server_config,
-                                request_buffer,
-                                request_buffer_size,
-                                response_buffer,
-                                response_buffer_size);
-    return true;
-  }
-  else {
-    std::cout << "Dispatching 404 handler\n";
-    NotFoundRequestHandler notFoundHandler;
-    notFoundHandler.handleRequest(server_config,
-                                  request_buffer,
-                                  request_buffer_size,
-                                  response_buffer,
-                                  response_buffer_size);
-    return false;
-  }
+  // If no prefix found, return the default handler
+  // (a default handler must always be specified in the config)
+  return handlers_map_.find("default")->second;
 }

@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
   config_parser_.Parse(argv[1], &config_);
   std::cout << config_.ToString() << std::endl;
 
-  std::cout << "~~~ Starting Lightning Server using the above config ~~~\n";
+  std::cout << "~~~ Starting Lightning Server using the above config ~~~\n\n";
   LightningServer server(config_);
   server.start();
 
