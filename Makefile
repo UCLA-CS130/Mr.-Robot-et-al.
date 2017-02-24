@@ -41,8 +41,8 @@ $(TESTS):
 		${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o $(TESTS)
 
 	$(CXX) $(SRC_FLAGS) $(GTEST_FLAGS) $(PARSER_PATH)config_parser.cc mime_types.cc server_config.cc \
-		request_router.cc request_handlers.cc request_handlers_test.cc server_stats.cc \
-		${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o request_handlers_test
+		request_router.cc request.cc response.cc request_handlers.cc request_handlers_test.cc \
+		server_stats.cc ${GTEST_DIR}/src/gtest_main.cc libgtest.a $(LDFLAGS) -o request_handlers_test
 
 integration_test: $(TARGET) $(TESTS)
 	./$(TESTS)

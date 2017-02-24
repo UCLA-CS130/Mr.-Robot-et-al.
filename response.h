@@ -34,6 +34,7 @@ class Response {
   const std::string statusCode() const;
 
   std::string ToString();
+  std::string GetBody();
 
  private:
   std::map<int, std::string> reason_phrase_ = {

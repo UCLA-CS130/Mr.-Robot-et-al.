@@ -33,3 +33,7 @@ std::string Response::ToString() {
   return first_line_ + "\r\n" + response_headers_str + "\r\n" +
          response_body_;
 }
+
+std::string Response::GetBody() {
+  return response_body_;
+}
