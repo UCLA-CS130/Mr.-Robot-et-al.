@@ -13,14 +13,16 @@ using std::string;
 
 class ServerStats {
   public:
-    bool recordRequest(Request request);
-    bool recordResponse(Response response);
+    // Record a Request/Response pair
+    void recordInteraction(Request request, Response response);
+
+    // Store the ServerConfig for later look-up
     void recordConfig(ServerConfig server_config);
 
     // The map of prefixes to handler names
     std::unordered_map<string, string> allRoutes() const;
 
-    // The map of [url, status_code] -> count
+    // The map of [full_uri, status_code] -> count
     std::unordered_map<std::vector<string>,
                        int,
                        container_hash<std::vector<string>>>
@@ -39,7 +41,7 @@ class ServerStats {
 
     // uri_prefix -> handler_name
     std::unordered_map<string, string> prefixes_to_handlers_;
-    // [url, status_code] -> count
+    // [full_uri, status_code] -> count
     std::unordered_map<std::vector<string>,
                        int,
                        container_hash<std::vector<string>>> handler_call_distribution_;
