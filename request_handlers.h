@@ -2,8 +2,10 @@
 #define REQUEST_HANDLERS_H
 
 #include "server_config.h"
+#include "server_stats.h"
 
 #include <boost/asio.hpp>
+
 
 using boost::asio::ip::tcp;
 
@@ -106,6 +108,24 @@ class NotFoundRequestHandler : public RequestHandler {
     ServerConfig config_;
 };
 REGISTER_REQUEST_HANDLER(NotFoundRequestHandler);
+
+// Return server statistics, like the routes and request-type counts
+class StatusHandler : public RequestHandler {
+ public:
+    virtual bool init(const std::string& uri_prefix,
+                      const NginxConfig& config);
+
+    virtual Status handleRequest(const Request& request,
+                                 Response* response);
+
+    // Make an external ServerStats instance available to the handler
+    void setUpStats(ServerStats* server_stats);
+
+ private:
+    static ServerStats* server_stats_;
+};
+
+REGISTER_REQUEST_HANDLER(StatusHandler);
 
 #endif  // REQUEST_HANDLER_H
 

@@ -10,6 +10,7 @@
 #include <boost/tokenizer.hpp>
 #include <cstddef>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -153,4 +154,59 @@ RequestHandler::Status NotFoundRequestHandler::handleRequest(const Request& requ
   response->SetBody(not_found_response_html);
 
   return RequestHandler::NOT_FOUND;
+}
+
+bool StatusHandler::init(const std::string& uri_prefix,
+                        const NginxConfig& config) {
+  server_stats_ = nullptr;
+  return true;
+}
+
+RequestHandler::Status StatusHandler::handleRequest(const Request& request,
+                                                    Response* response) {
+
+  // Get the prefix-to-handler map
+  std::unordered_map<std::string, std::string> prefix_to_handlers
+    = server_stats_->allRoutes();
+
+  // Get the (url, status_code)-to-count map
+  std::unordered_map<std::vector<string>,
+                     int,
+                     container_hash<std::vector<string>>>
+  tuple_to_count
+    = server_stats_->handlerCallDistribution();
+
+  // Print both out nicely in response
+  std::string reply = "Available Handlers\n";
+  for (auto it : prefix_to_handlers) {
+    std::string line = it.first + " <--- " + it.second + "\n";
+    reply += line;
+  }
+  reply += "\n";
+
+  std::string table = "Count | URL Requested | Status Code\n"
+                      "-----------------------------------\n";
+  const char separator = ' ';
+  const int count_width = 6;
+  const int url_width = 14;
+  const int status_width = 11;
+  std::stringstream line;
+
+  for (auto it : tuple_to_count) {
+    line << std::to_string(it.second) << std::setw(count_width) << "| "
+         << it.first[0] << std::setw(url_width) << "| "
+         << it.first[1] << std::setw(status_width) << "\n";
+    reply += line.str();
+    line.clear();
+  }
+
+  response->SetStatus(Response::OK);
+  response->AddHeader("Content-Type", "text/plain");
+  response->SetBody(reply);
+
+  return RequestHandler::OK;
+}
+
+void StatusHandler::setUpStats(ServerStats* server_stats) {
+  server_stats_ = server_stats;
 }
