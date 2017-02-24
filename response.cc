@@ -5,9 +5,9 @@
 
 void Response::SetStatus(const ResponseCode response_code) {
   // boost lexical_cast will convert response_code of type int to type string
-  std::string status_code = boost::lexical_cast<std::string>(response_code);
+  status_code_ = boost::lexical_cast<std::string>(response_code);
   std::string reason_phrase = reason_phrase_.find(response_code)->second;
-  first_line_ = "HTTP/1.1 " + status_code + " " + reason_phrase;
+  first_line_ = "HTTP/1.1 " + status_code_ + " " + reason_phrase;
   std::cout << "Response First Line: " + first_line_ << std::endl;
 }
 
@@ -18,6 +18,10 @@ void Response::AddHeader(const std::string& header_name,
 
 void Response::SetBody(const std::string& body) {
   response_body_ = body;
+}
+
+const std::string Response::statusCode() const {
+  return status_code_;
 }
 
 std::string Response::ToString() {
