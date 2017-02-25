@@ -46,6 +46,9 @@ class RequestRouter {
     // as /static1/subaction is the longest prefix that matches.
     RequestHandler* routeRequest(const std::string& full_uri) const;
 
+    // Return the default handler as specified in the config
+    RequestHandler* notFoundHandler() const;
+
   private:
     // Map URI prefixes to request handlers
     // TODO: Creating a unique_ptr to a polymorphic type in an <unordered_map>

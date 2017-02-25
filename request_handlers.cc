@@ -86,7 +86,7 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   std::size_t last_slash_pos = request_path.find_last_of("/");
   std::string filename = request_path.substr(last_slash_pos + 1);
   std::size_t last_dot_pos = request_path.find_last_of(".");
-  std::string extension;
+  std::string extension = "";
 
   // Check if position of last '.' character != end of string AND
   // position of last '.' comes after position of last '/', then
@@ -109,7 +109,7 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   std::string full_path = root_path.string() + request_path;
 
   // Check to make sure that file exists, and dispatch 404 handler if it doesn't
-  if (!boost::filesystem::exists(full_path)) {
+  if (!boost::filesystem::exists(full_path) || extension == "") {
     std::cout << "Dispatching 404 handler. File not found/doesn't exist at: "
               << full_path << std::endl;
     return RequestHandler::NOT_FOUND;
