@@ -10,5 +10,7 @@ path /static StaticRequestHandler {
 # Currently: no default options for handlers
 path /echo EchoRequestHandler {}
 
+path /status StatusHandler {}
+
 # Default response handler if no handlers match.
 default NotFoundRequestHandler {}

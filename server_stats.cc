@@ -7,7 +7,7 @@ void ServerStats::recordInteraction(Request request, Response response) {
   // Increment its count or initialize its count as 0 if never seen before
   const auto it = handler_call_distribution_.find(uri_and_status);
   if (it == handler_call_distribution_.end()) {
-    handler_call_distribution_[uri_and_status] = 0;
+    handler_call_distribution_[uri_and_status] = 1;
   }
   else {
     handler_call_distribution_[uri_and_status] += 1;
@@ -26,5 +26,5 @@ std::unordered_map<std::vector<string>,
                    int,
                    tuple_hash<std::vector<string>>>
 ServerStats::handlerCallDistribution() const {
-  // TODO
+  return handler_call_distribution_;
 }

@@ -88,3 +88,7 @@ RequestHandler* RequestRouter::routeRequest(const std::string& full_uri) const {
   // (a default handler must always be specified in the config)
   return handlers_map_.find("default")->second;
 }
+
+RequestHandler* RequestRouter::notFoundHandler() const {
+  return not_found_handler_;
+}

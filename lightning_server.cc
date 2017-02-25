@@ -77,6 +77,9 @@ void LightningServer::start() {
     // Routing requests to their handlers
     RequestHandler* handler = router.routeRequest(request->uri());
     RequestHandler::Status status_code = handler->handleRequest(*request, &response);
+    if (status_code == RequestHandler::NOT_FOUND) {
+      router.notFoundHandler()->handleRequest(*request, &response);
+    }
 
     server_stats.recordInteraction(*request, response);
 
