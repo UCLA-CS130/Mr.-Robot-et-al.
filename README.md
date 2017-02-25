@@ -36,6 +36,8 @@ $ make
 $ ./lightning [config file]
 ```
 
+A basic config file that we included is `simple_config`. It contains configurations for all our curent handlers, and specifies port 2020.
+
 To clean everything up:
 ```
 $ make clean
@@ -73,7 +75,7 @@ lightning_main
 
 In order to add a new handler, you will need to first create a class definition and implementation for it in `request_handlers.h` and `request_handlers.cc` files. We have a abstract base class called `RequestHandler` that contains the enums and initializes the handler. Your handler will be derived from this class. `EchoRequestHandler` is a good example of how this can be done. Each new handler will call the `init` member function and implement the `handleRequest` member function.
 
-Once you are done with making your handler, you can use it by running the server with a config file that gives your handler a path. See `sample_config` for examples of previous handler paths.
+Once you are done with making your handler, you can use it by running the server with a config file that gives your handler a path. See `simple_config` for examples of previous handler paths.
 
 Authors: 
 
