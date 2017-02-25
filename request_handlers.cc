@@ -164,6 +164,7 @@ bool StatusHandler::init(const std::string& uri_prefix,
 
 RequestHandler::Status StatusHandler::handleRequest(const Request& request,
                                                     Response* response) {
+  std::cout << "StatusHandler currently responding.\n";
 
   // Get the prefix-to-handler map
   std::unordered_map<std::string, std::string> prefix_to_handlers
@@ -184,20 +185,21 @@ RequestHandler::Status StatusHandler::handleRequest(const Request& request,
   }
   reply += "\n";
 
-  std::string table = "Count | URL Requested | Status Code\n"
-                      "-----------------------------------\n";
+  std::string table = "Count | URL Requested                                   | Status Code\n"
+                      "---------------------------------------------------------------------\n";
   const char separator = ' ';
-  const int count_width = 6;
-  const int url_width = 14;
+  const int count_width = 8;
+  const int url_width = 50;
   const int status_width = 11;
-  std::stringstream line;
 
+  reply += table;
   for (auto it : tuple_to_count) {
-    line << std::to_string(it.second) << std::setw(count_width) << "| "
-         << it.first[0] << std::setw(url_width) << "| "
-         << it.first[1] << std::setw(status_width) << "\n";
+    std::stringstream line;
+    line << std::to_string(it.second)
+         << std::setw(count_width-(std::to_string(it.second)).length()) << "| "
+         << it.first[0] << std::setw(url_width-it.first[0].length()) << "| "
+         << it.first[1] << std::setw(status_width-it.first[1].length()) << "\n";
     reply += line.str();
-    line.clear();
   }
 
   response->SetStatus(Response::OK);
