@@ -19,24 +19,14 @@ $ git clone --recursive git@github.com:UCLA-CS130/Mr.-Robot-et-al..git
 
 ### Dependencies
 
-#### Boost
-Used for socket networking as well as string manipulation.
-```
-$ sudo apt-get install libboost-all-dev
-```
+We have the following dependencies:
 
-#### Lcov
-Needed to create test coverage webpages.
-```
-$ sudo apt-get install lcov
-```
+* Boost: used for socket networking as well as string manipulation.
+* Lcov: used to create test coverage webpages.
+* Python 3.6: Our integration test that uses methods not supported in version of Python earlier than 3.6
+* httpie: a handy tool for checking http connections that we use in our integration test.
 
-#### Python 3.6
-Out integration test makes use of methods not supported in versions of Python earlier than 3.6
-```
-$ sudo apt-get install python3.6  
-```
-
+To install these dependencies, simply run `./configure.sh`
 
 # Usage
 
@@ -45,6 +35,8 @@ To following is an example of how to build and run LightningServer. It takes in 
 $ make
 $ ./lightning [config file]
 ```
+
+A basic config file that we included is `simple_config`. It contains configurations for all our curent handlers, and specifies port 2020.
 
 To clean everything up:
 ```
@@ -78,6 +70,12 @@ lightning_main
       response
       request_handlers
 ```
+
+### Adding a Handler
+
+In order to add a new handler, you will need to first create a class definition and implementation for it in `request_handlers.h` and `request_handlers.cc` files. We have a abstract base class called `RequestHandler` that contains the enums and initializes the handler. Your handler will be derived from this class. `EchoRequestHandler` is a good example of how this can be done. Each new handler will call the `init` member function and implement the `handleRequest` member function.
+
+Once you are done with making your handler, you can use it by running the server with a config file that gives your handler a path. See `simple_config` for examples of previous handler paths.
 
 Authors: 
 
