@@ -22,6 +22,9 @@ struct tuple_hash {
 
 class ServerStats {
   public:
+    // Initialize distribution with one sucessful call to /status
+    void init(ServerConfig server_config);
+
     // Record a Request/Response pair
     void recordInteraction(Request request, Response response);
 
