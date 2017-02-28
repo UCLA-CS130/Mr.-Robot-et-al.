@@ -156,6 +156,39 @@ RequestHandler::Status NotFoundRequestHandler::handleRequest(const Request& requ
   return RequestHandler::NOT_FOUND;
 }
 
+bool ProxyRequestHandler::init(const std::string& uri_prefix,
+                                  const NginxConfig& config) {
+  uri_prefix_ = uri_prefix;
+  config_ = ServerConfig(config);
+  // TODO: do logging/check return value of build
+  config_.build();
+  return true;
+}
+
+RequestHandler::Status ProxyRequestHandler::handleRequest(const Request& request,
+                                                             Response* response) {
+  std::cout << "ProxyRequestHandler currently responding.\n";
+
+  std::string proxy_host, std::string proxy_port; 
+  std::vector<std::string> query_host = {"proxy_host"};
+  std::vector<std::string> query_port = {"proxy_port"};
+
+  config_.printPropertiesMap();
+  if(!config_.propertyLookUp(query_host, proxy_host)) {
+    std::cout << "Failed to specify proxy host.\n";
+    return RequestHandler::NOT_FOUND; 
+  }
+
+  if(!config_.propertyLookUp(query_port, proxy_port)) {
+    std::cout << "Failed to specify proxy port.\n";
+    return RequestHandler::NOT_FOUND; 
+  }
+
+  // TODO: Forward request to proxy host and handle response 
+  
+  return RequestHandler::OK;
+}
+
 bool StatusHandler::init(const std::string& uri_prefix,
                         const NginxConfig& config) {
   server_stats_ = nullptr;
