@@ -12,9 +12,9 @@ path /echo EchoRequestHandler {}
 
 path /status StatusHandler {}
 
-path /proxy ProxyRequestHandler {
-  proxy_host  ucla.edu;
-  proxy_port  8080; 
+path /reverse_proxy ReverseProxyRequestHandler {
+  reverse_proxy_host  ucla.edu;
+  reverse_proxy_port  8080; 
 }
 
 # Default response handler if no handlers match.

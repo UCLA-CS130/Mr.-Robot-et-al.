@@ -156,8 +156,8 @@ RequestHandler::Status NotFoundRequestHandler::handleRequest(const Request& requ
   return RequestHandler::NOT_FOUND;
 }
 
-bool ProxyRequestHandler::init(const std::string& uri_prefix,
-                                  const NginxConfig& config) {
+bool ReverseProxyRequestHandler::init(const std::string& uri_prefix,
+                                      const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
   config_ = ServerConfig(config);
   // TODO: do logging/check return value of build
@@ -165,22 +165,22 @@ bool ProxyRequestHandler::init(const std::string& uri_prefix,
   return true;
 }
 
-RequestHandler::Status ProxyRequestHandler::handleRequest(const Request& request,
-                                                             Response* response) {
-  std::cout << "ProxyRequestHandler currently responding.\n";
+RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& request,
+                                                                 Response* response) {
+  std::cout << "ReverseProxyRequestHandler currently responding.\n";
 
-  std::string proxy_host;
-  std::string proxy_port; 
-  std::vector<std::string> query_host = {"proxy_host"};
-  std::vector<std::string> query_port = {"proxy_port"};
+  std::string reverse_proxy_host;
+  std::string reverse_proxy_port; 
+  std::vector<std::string> query_host = {"reverse_proxy_host"};
+  std::vector<std::string> query_port = {"reverse_proxy_port"};
 
   config_.printPropertiesMap();
-  if(!config_.propertyLookUp(query_host, proxy_host)) {
+  if (!config_.propertyLookUp(query_host, reverse_proxy_host)) {
     std::cout << "Failed to specify proxy host.\n";
     return RequestHandler::NOT_FOUND; 
   }
 
-  if(!config_.propertyLookUp(query_port, proxy_port)) {
+  if (!config_.propertyLookUp(query_port, reverse_proxy_port)) {
     std::cout << "Failed to specify proxy port.\n";
     return RequestHandler::NOT_FOUND; 
   }

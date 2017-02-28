@@ -99,7 +99,7 @@ class NotFoundRequestHandler : public RequestHandler {
     NotFoundRequestHandler() {}
 
     virtual bool init(const std::string& uri_prefix,
-                        const NginxConfig& config);
+                      const NginxConfig& config);
 
     virtual Status handleRequest(const Request& request,
                                  Response* response);
@@ -109,13 +109,13 @@ class NotFoundRequestHandler : public RequestHandler {
 };
 REGISTER_REQUEST_HANDLER(NotFoundRequestHandler);
 
-// Handle proxy server requests
-class ProxyRequestHandler : public RequestHandler {
+// Handle reverse proxy server requests
+class ReverseProxyRequestHandler : public RequestHandler {
   public:
-    ProxyRequestHandler() {}
+    ReverseProxyRequestHandler() {}
 
     virtual bool init(const std::string& uri_prefix,
-                        const NginxConfig& config);
+                      const NginxConfig& config);
 
     virtual Status handleRequest(const Request& request,
                                  Response* response);
@@ -123,7 +123,7 @@ class ProxyRequestHandler : public RequestHandler {
     std::string uri_prefix_;
     ServerConfig config_;
 };
-REGISTER_REQUEST_HANDLER(ProxyRequestHandler);
+REGISTER_REQUEST_HANDLER(ReverseProxyRequestHandler);
 
 // Return server statistics, like the routes and request-type counts
 class StatusHandler : public RequestHandler {
