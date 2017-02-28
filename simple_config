@@ -12,5 +12,10 @@ path /echo EchoRequestHandler {}
 
 path /status StatusHandler {}
 
+path /proxy ProxyRequestHandler {
+  proxy_host  ucla.edu;
+  proxy_port  8080; 
+}
+
 # Default response handler if no handlers match.
 default NotFoundRequestHandler {}
