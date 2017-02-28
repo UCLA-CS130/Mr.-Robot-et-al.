@@ -19,6 +19,7 @@ class LightningServer {
     boost::asio::io_service io_service_;
     boost::asio::ip::tcp::acceptor acceptor_;
     std::string port_;
+    std::size_t num_threads_;
 };
 
 #endif

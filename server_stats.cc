@@ -17,6 +17,7 @@ void ServerStats::recordInteraction(Request request, Response response) {
   // Construct tuple of [full_uri, status_code]
   std::vector<string> uri_and_status = { request.uri(), response.statusCode() };
 
+  std::lock_guard<std::mutex> lock(mutex_);
   // Increment its count or initialize its count as 0 if never seen before
   const auto it = handler_call_distribution_.find(uri_and_status);
   if (it == handler_call_distribution_.end()) {

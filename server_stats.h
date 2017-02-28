@@ -5,6 +5,7 @@
 #include "response.h"
 #include "server_config.h"
 
+#include <mutex>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -48,6 +49,7 @@ class ServerStats {
     std::unordered_map<std::vector<string>,
                        int,
                        tuple_hash<std::vector<string>>> handler_call_distribution_;
+    std::mutex mutex_;
 };
 
 #endif SERVER_STATS_H
