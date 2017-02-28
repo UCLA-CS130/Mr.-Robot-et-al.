@@ -169,7 +169,8 @@ RequestHandler::Status ProxyRequestHandler::handleRequest(const Request& request
                                                              Response* response) {
   std::cout << "ProxyRequestHandler currently responding.\n";
 
-  std::string proxy_host, std::string proxy_port; 
+  std::string proxy_host;
+  std::string proxy_port; 
   std::vector<std::string> query_host = {"proxy_host"};
   std::vector<std::string> query_port = {"proxy_port"};
 
