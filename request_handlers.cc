@@ -12,6 +12,9 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <istream>
+#include <ostream>
+#include <sstream>
 #include <string>
 
 using boost::asio::ip::tcp;
@@ -185,8 +188,78 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
     return RequestHandler::NOT_FOUND; 
   }
 
-  // TODO: Forward request to proxy host and handle response 
+  // New connection setup
+  boost::asio::io_service io_service;
+  tcp::resolver resolver(io_service);
+  boost::system::error_code ec;
+
+  // Attempt to query the host using the HTTP protocol
+  // TODO: If reverse_proxy_port is specified query using that
+  tcp::resolver::query query(reverse_proxy_host, "http");
+  tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+
+  // Try each endpoint until we succesfully establish a connection
+  tcp::socket socket(io_service);
+  boost::asio::connect(socket, endpoint_iterator, ec);
+  if (ec) {
+    // TODO: Return 5xx error instead of 404 
+    std::cout << "Error establishing connection with reverse proxy host: " << reverse_proxy_host << std::endl;
+    return RequestHandler::NOT_FOUND;
+  }
   
+  // Modify request: 
+  // TODO: Only handles request expecting '/' of remote. 
+  // Need to handle cases such as: /proxy/static1/file.txt => [host]/static1/file.txt
+  Request r; 
+  r.AddRequestLine("GET", "/", "HTTP/1.1"); 
+  r.AddHeader("Host", reverse_proxy_host);
+  r.AddHeader("Accept", "*/*");
+  r.AddHeader("Connection", "close") ; 
+
+  std::string reverse_proxy_request = r.ToString(); 
+  std::cout << "=== MODIFIED REQUEST ===\n" << reverse_proxy_request << std::endl;
+
+  // Send the request: 
+  boost::asio::write(socket,
+                     boost::asio::buffer(reverse_proxy_request.c_str(),
+                                         reverse_proxy_request.size()));
+
+  // Receive response: 
+  boost::asio::streambuf remote_response_buffer;
+  std::string raw_response;
+  std::size_t bytes_read;
+  while((bytes_read = boost::asio::read(socket, remote_response_buffer, 
+                      boost::asio::transfer_at_least(1), ec))) {
+
+    // Read the data from buffer into string
+    // Taken from: http://www.boost.org/doc/libs/1_61_0/doc/html/boost_asio/overview/core/buffers.html
+    std::string read_data = std::string(boost::asio::buffers_begin(remote_response_buffer.data()),
+                                        boost::asio::buffers_begin(remote_response_buffer.data()) + bytes_read);
+    
+    raw_response += read_data;
+    // Remove the bytes read from the buffer
+    remote_response_buffer.consume(bytes_read);
+  }
+  if(ec != boost::asio::error::eof) {
+    // Error reading.
+    std::cout << "Error reading response.\n";
+    return RequestHandler::NOT_FOUND;
+  }
+
+  // Parse raw response 
+  auto parsed_response = Response::Parse(raw_response);
+  if (parsed_response == nullptr) {
+    std::cout << "An error occured parsing the response.\n";
+    return RequestHandler::NOT_FOUND;
+  }
+
+  // TODO: Handle redirect 
+  if (parsed_response->statusCode() == "302") {
+    std::cout << "Handling redirect...\n"; 
+  }
+  std::string parsed_resp_str = parsed_response->ToString();
+  *(response) = *(parsed_response.get());
+
   return RequestHandler::OK;
 }
 
