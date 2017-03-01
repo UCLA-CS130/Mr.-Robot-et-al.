@@ -7,11 +7,9 @@
 #include "response.h"
 
 #include <iostream>
-#include <boost/thread.hpp>
 #include <cstddef>
-#include <boost/smart_ptr.hpp>
-
-typedef boost::shared_ptr<tcp::socket> socket_ptr;
+#include <thread>
+using boost::asio::ip::tcp;
 
 LightningServer::LightningServer(const NginxConfig config_)
   : server_config_(config_),
@@ -22,11 +20,11 @@ LightningServer::LightningServer(const NginxConfig config_)
 
 LightningServer::~LightningServer() {}
 
-void processConnection(socket_ptr socket, RequestRouter* router, ServerStats* server_stats) {
+void processConnection(tcp::socket socket, RequestRouter* router, ServerStats* server_stats) {
   // Read in request
   char request_buffer[MAX_REQ_SIZE];
   boost::system::error_code ec;
-  std::size_t request_buffer_size = socket->read_some(boost::asio::buffer(request_buffer), ec);
+  std::size_t request_buffer_size = socket.read_some(boost::asio::buffer(request_buffer), ec);
 
   switch (ec.value()) {
     case boost::system::errc::success:
@@ -54,10 +52,9 @@ void processConnection(socket_ptr socket, RequestRouter* router, ServerStats* se
 
   // Write back response
   std::string response_string = response.ToString();
-  boost::asio::write(*socket,
+  boost::asio::write(socket,
                      boost::asio::buffer(response_string.c_str(),
                                          response_string.size()));
-  // TODO: may have problem when doing logging for StatusHandler
 }
 
 void LightningServer::start() {
@@ -110,9 +107,9 @@ void LightningServer::start() {
   // Lightning listening loop
   for (;;) {
     // Accept connection request and spawn a new thread for each
-    socket_ptr socket(new tcp::socket(io_service_));
-    acceptor_.accept(*socket);
-    boost::thread t(boost::bind(processConnection, socket, &router, &server_stats));
+    tcp::socket socket(io_service_);
+    acceptor_.accept(socket);
+    std::thread(processConnection, std::move(socket), &router, &server_stats).detach();
   }
 }
 
