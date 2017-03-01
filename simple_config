@@ -2,6 +2,8 @@
 
 port 2020;  # This is also a comment.
 
+num_threads 5;
+
 path /static StaticRequestHandler {
   root /test;
 }

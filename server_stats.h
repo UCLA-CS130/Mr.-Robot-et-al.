@@ -5,6 +5,7 @@
 #include "response.h"
 #include "server_config.h"
 
+#include <mutex>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -22,6 +23,9 @@ struct tuple_hash {
 
 class ServerStats {
   public:
+    // Initialize distribution with one sucessful call to /status
+    void init(ServerConfig server_config);
+
     // Record a Request/Response pair
     void recordInteraction(Request request, Response response);
 
@@ -45,6 +49,7 @@ class ServerStats {
     std::unordered_map<std::vector<string>,
                        int,
                        tuple_hash<std::vector<string>>> handler_call_distribution_;
+    std::mutex mutex_;
 };
 
 #endif SERVER_STATS_H
