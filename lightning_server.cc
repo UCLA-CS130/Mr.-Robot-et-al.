@@ -88,13 +88,15 @@ void LightningServer::start() {
   }
 
   // Set the number of threads if specified in the config
-  std::vector<std::string> query_path = {"numThreads"};
+  std::vector<std::string> query_path = {"num_threads"};
   std::string num_threads;
   bool found_threads = server_config_.propertyLookUp(query_path, num_threads);
-  num_threads_ = std::stoi(num_threads);
   if (!found_threads) {
     std::cout << "Number of threads not specified in config: defaulting to 0\n";
     num_threads_ = 0;
+  }
+  else {
+    num_threads_ = std::stoi(num_threads);
   }
 
   // Setup server to listen for TCP connection on config file specified port
