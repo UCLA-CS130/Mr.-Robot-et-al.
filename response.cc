@@ -35,7 +35,7 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_response) {
   std::vector<std::string> resp_line; 
   boost::split(resp_line,lines[0],boost::is_any_of(" "));
 
-  if (resp_line.size() != 3) {
+  if (resp_line.size() < 2) {
     std::cout << "Malformed response line.\n";
     return nullptr;
   }
@@ -89,6 +89,9 @@ const std::string Response::statusCode() const {
   return status_code_;
 }
 
+// Pass in the integer version of the code and get the ResponseCode type as
+// the out param
+// Returns true if successful, false if response code not found
 bool Response::GetResponseCode(int code, Response::ResponseCode& rc) {
   switch (code) {
     case 200:
@@ -100,9 +103,24 @@ bool Response::GetResponseCode(int code, Response::ResponseCode& rc) {
     case 302:
       rc = ResponseCode::FOUND;
       return true; 
+    case 301:
+      rc = ResponseCode::MOVED;
+      return true;
     default: 
       return false;
   }
+}
+
+// Pass in the header key and get the header value as an out param
+// Returns true if successful, false if header key does not exist
+bool Response::GetHeader(std::string header_key, std::string& header_value) {
+ for (int i = 0; i < response_header_.size(); i++) {
+  if (response_header_[i].first == header_key) {
+    header_value = response_header_[i].second; 
+    return true;
+  }
+ }
+ return false;
 }
 
 std::string Response::ToString() {

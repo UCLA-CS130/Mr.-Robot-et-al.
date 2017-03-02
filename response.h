@@ -26,7 +26,8 @@ class Response {
     enum ResponseCode {
     OK = 200,
     NOT_FOUND = 404,
-    FOUND = 302
+    FOUND = 302,
+    MOVED = 301
   };
   static std::unique_ptr<Response> Parse(const std::string& raw_response);
   void SetStatus(const ResponseCode response_code);
@@ -40,12 +41,14 @@ class Response {
   std::string ToString();
   std::string GetBody();
   bool GetResponseCode(int code, Response::ResponseCode& rc); 
+  bool GetHeader(std::string header_key, std::string& header_value);
 
  private:
   std::map<int, std::string> reason_phrase_ = {
       {200, "OK"},
       {404, "NOT FOUND"},
-      {302, "FOUND"}
+      {302, "FOUND"},
+      {301, "MOVED PERMANENTLY"}
   };
   std::string first_line_;
   using Headers = std::vector<std::pair<std::string, std::string>>;
