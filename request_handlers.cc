@@ -6,6 +6,7 @@
 #include "server_config.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/find.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <cstddef>
@@ -172,8 +173,8 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
                                                                  Response* response) {
   std::cout << "ReverseProxyRequestHandler currently responding.\n";
 
-  std::string reverse_proxy_host;
-  std::string reverse_proxy_port; 
+  std::string reverse_proxy_host = "";
+  std::string reverse_proxy_port = "";
   std::vector<std::string> query_host = {"reverse_proxy_host"};
   std::vector<std::string> query_port = {"reverse_proxy_port"};
 
@@ -184,8 +185,7 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   }
 
   if (!config_.propertyLookUp(query_port, reverse_proxy_port)) {
-    std::cout << "Failed to specify proxy port.\n";
-    return RequestHandler::NOT_FOUND; 
+    std::cout << "Note: Reverse proxy port not specified. Querying host only: " << reverse_proxy_host << std::endl;
   }
 
   // New connection setup
@@ -194,10 +194,14 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   boost::system::error_code ec;
 
   // Attempt to query the host using the HTTP protocol
-  // TODO: If reverse_proxy_port is specified query using that
-  tcp::resolver::query query(reverse_proxy_host, "http");
+  std::string port = "http"; 
+  if (reverse_proxy_port != "") {
+    port = reverse_proxy_port;
+  }
+  std::string modified_proxy_host = ReverseProxyRequestHandler::sanitizeProxyHost(reverse_proxy_host); 
+  tcp::resolver::query query(modified_proxy_host, port);
   tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-
+  
   // Try each endpoint until we succesfully establish a connection
   tcp::socket socket(io_service);
   boost::asio::connect(socket, endpoint_iterator, ec);
@@ -208,25 +212,168 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   }
   
   // Modify request: 
-  // TODO: Only handles request expecting '/' of remote. 
-  // Need to handle cases such as: /proxy/static1/file.txt => [host]/static1/file.txt
+  // Need to handle cases such as: /proxy/static1/file.txt 
+  std::string proxy_path = ReverseProxyRequestHandler::obtainPath(request.uri());
+
   Request r; 
-  r.AddRequestLine("GET", "/", "HTTP/1.1"); 
+  if (proxy_path == "") {
+    r.AddRequestLine("GET", "/", "HTTP/1.1");
+  }
+  else {
+    r.AddRequestLine("GET", proxy_path, "HTTP/1.1");
+  } 
   r.AddHeader("Host", reverse_proxy_host);
   r.AddHeader("Accept", "*/*");
   r.AddHeader("Connection", "close") ; 
 
   std::string reverse_proxy_request = r.ToString(); 
   std::cout << "=== MODIFIED REQUEST ===\n" << reverse_proxy_request << std::endl;
-
+  
   // Send the request: 
   boost::asio::write(socket,
                      boost::asio::buffer(reverse_proxy_request.c_str(),
                                          reverse_proxy_request.size()));
 
   // Receive response: 
+  std::string raw_response; 
+  if(!ReverseProxyRequestHandler::obtainResponse(socket, raw_response)) {
+    return RequestHandler::NOT_FOUND;
+  }
+
+  // Parse raw response 
+  auto parsed_response = Response::Parse(raw_response);
+  if (parsed_response == nullptr) {
+    std::cout << "An error occured parsing the response.\n";
+    return RequestHandler::NOT_FOUND;
+  }
+
+  std::string parsed_resp_str = parsed_response->ToString();
+  std::cout << "=== RESPONSE FROM REMOTE ===\n" << parsed_resp_str << std::endl;
+
+  // Handle redirect - handles at most one redirect
+  if (parsed_response->statusCode() == "302" || parsed_response->statusCode() == "301") {
+    std::cout << "Handling redirect...\n"; 
+    std::string location_val; 
+    if (!parsed_response->GetHeader("Location", location_val)) {
+      std::cout << "Redirect response does not specify location\n"; 
+      return RequestHandler::NOT_FOUND;
+    }
+
+    std::string redirect_host = ReverseProxyRequestHandler::sanitizeProxyHost(location_val);
+    std::cout << "REDIRECT LOCATION: " << redirect_host << std::endl;
+
+    tcp::resolver::query redirect_query(redirect_host, port);
+    boost::asio::connect(socket, resolver.resolve(redirect_query), ec);
+    if (ec) {
+      // TODO: Return 5xx error instead of 404 
+      std::cout << "Error establishing connection with reverse proxy redirect host: " << redirect_host << std::endl;
+      return RequestHandler::NOT_FOUND;
+    }
+
+    Request redirect;
+    if (proxy_path == "") {
+      redirect.AddRequestLine("GET", "/", "HTTP/1.1");
+    }
+    else {
+      redirect.AddRequestLine("GET", proxy_path, "HTTP/1.1");
+    } 
+    redirect.AddHeader("Host", redirect_host);
+    redirect.AddHeader("Accept", "*/*");
+    redirect.AddHeader("Connection", "close") ; 
+
+    std::string redirect_request = redirect.ToString(); 
+    std::cout << "=== REDIRECT REQUEST ===\n" << redirect_request << std::endl;
+  
+    // Send the redirect request: 
+    boost::asio::write(socket,
+                       boost::asio::buffer(redirect_request.c_str(),
+                                           redirect_request.size()));
+    // Receive redirect response
+    std::string raw_redirect_response; 
+    if (!ReverseProxyRequestHandler::obtainResponse(socket, raw_redirect_response)) {
+      std::cout << "Response from redirect failed to be read.\n";
+      return RequestHandler::NOT_FOUND;
+    }
+    
+    // Parse raw redirect response 
+    auto parsed_redirect_response = Response::Parse(raw_redirect_response);
+    if (parsed_redirect_response == nullptr) {
+      std::cout << "An error occured parsing the response.\n";
+      return RequestHandler::NOT_FOUND;
+    }
+
+    if (parsed_redirect_response->statusCode() == "302" || parsed_redirect_response->statusCode() == "301") {
+      std::cout << "Attempting to redirect request more than once.\n";
+      return RequestHandler::NOT_FOUND;
+    }
+
+    // Request successful, write response to server
+    std::string parsed_redirect_resp_str = parsed_redirect_response->ToString();
+    std::cout << "=== REDIRECT RESPONSE FROM REMOTE ===\n" << parsed_redirect_resp_str << std::endl;
+
+    // Some pointer magic to convert a unique_ptr to a raw pointer 
+    *(response) = *(parsed_redirect_response.get());
+
+    return RequestHandler::OK;
+  
+  }
+
+  // Request successful, write response to server
+  // Some pointer magic to convert a unique_ptr to a raw pointer 
+  *(response) = *(parsed_response.get());
+
+  return RequestHandler::OK;
+}
+
+// Takes in an uri of the following format: /proxy_path/foo/bar
+// and obtains the path following /proxy_path => /foo/bar
+// 
+// If nothing follows the uri like so: /proxy_path
+// The function will return an empty string
+
+std::string ReverseProxyRequestHandler::obtainPath(std::string uri) {
+  // Assumption: non-root paths for ReverseProxyRequestHandler will be
+  // prefixed with the word "proxy" in its path
+  // IE /reverse_proxy_path, /proxy, ect
+  
+  // Handle case where files are served from "/"
+  // IE /static/index.html, return the uri 
+  boost::iterator_range<string::iterator> find_proxy = boost::find_nth(uri, "proxy", 0); 
+  if (!find_proxy) {
+    return uri; 
+  }
+  std::string default_path = "";
+  boost::iterator_range<string::iterator> r = boost::find_nth(uri, "/", 1);
+  
+  if (r) {
+    std::string path(r.begin(), uri.end());
+    return path;
+  }
+  return default_path;
+}
+
+// If a remote proxy host is in the form: http:://www.foo.com/ return
+// www.foo.com instead. 
+std::string ReverseProxyRequestHandler::sanitizeProxyHost(std::string& remote_proxy_host) {
+
+  // Remove trailing forward slash 
+  if (remote_proxy_host.back() == '/') {
+    remote_proxy_host.pop_back(); 
+  }
+
+  boost::iterator_range<string::iterator> r = boost::find_nth(remote_proxy_host, "www.", 0); 
+  if (r) {
+    std::string sanitized_host(r.begin(), remote_proxy_host.end()); 
+    return sanitized_host; 
+  }
+
+  return remote_proxy_host;
+}
+
+// Obtain the response being written to socket 
+bool ReverseProxyRequestHandler::obtainResponse(tcp::socket& socket, std::string& raw_response) {
   boost::asio::streambuf remote_response_buffer;
-  std::string raw_response;
+  boost::system::error_code ec;
   std::size_t bytes_read;
   while((bytes_read = boost::asio::read(socket, remote_response_buffer, 
                       boost::asio::transfer_at_least(1), ec))) {
@@ -243,24 +390,10 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   if(ec != boost::asio::error::eof) {
     // Error reading.
     std::cout << "Error reading response.\n";
-    return RequestHandler::NOT_FOUND;
+    return false;
   }
 
-  // Parse raw response 
-  auto parsed_response = Response::Parse(raw_response);
-  if (parsed_response == nullptr) {
-    std::cout << "An error occured parsing the response.\n";
-    return RequestHandler::NOT_FOUND;
-  }
-
-  // TODO: Handle redirect 
-  if (parsed_response->statusCode() == "302") {
-    std::cout << "Handling redirect...\n"; 
-  }
-  std::string parsed_resp_str = parsed_response->ToString();
-  *(response) = *(parsed_response.get());
-
-  return RequestHandler::OK;
+  return true;
 }
 
 bool StatusHandler::init(const std::string& uri_prefix,
