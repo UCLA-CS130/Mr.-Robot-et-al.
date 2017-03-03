@@ -46,9 +46,9 @@ class Response {
  private:
   std::map<int, std::string> reason_phrase_ = {
       {200, "OK"},
-      {404, "NOT FOUND"},
+      {301, "MOVED PERMANENTLY"},
       {302, "FOUND"},
-      {301, "MOVED PERMANENTLY"}
+      {404, "NOT FOUND"}
   };
   std::string first_line_;
   using Headers = std::vector<std::pair<std::string, std::string>>;

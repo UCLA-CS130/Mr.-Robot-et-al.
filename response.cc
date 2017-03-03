@@ -13,8 +13,7 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_response) {
 
   // Separate headers and bocy from raw_response:
   size_t end_of_headers_index = raw_response.find("\r\n\r\n"); 
-  if(end_of_headers_index == std::string::npos)
-  {
+  if (end_of_headers_index == std::string::npos) {
     std::cout << "Unable to find headers of response.\n";
     return nullptr;
   }
@@ -29,11 +28,11 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_response) {
 
   // Extract headers into lines:
   std::vector<std::string> lines; 
-  boost::split(lines,headers,boost::is_any_of("\r\n"));
+  boost::split(lines, headers, boost::is_any_of("\r\n"));
 
   // Extract response line and status code
   std::vector<std::string> resp_line; 
-  boost::split(resp_line,lines[0],boost::is_any_of(" "));
+  boost::split(resp_line, lines[0], boost::is_any_of(" "));
 
   if (resp_line.size() < 2) {
     std::cout << "Malformed response line.\n";
@@ -50,14 +49,14 @@ std::unique_ptr<Response> Response::Parse(const std::string& raw_response) {
   parsed_response->SetStatus(rc);
 
   // Handle remaining headers
-  for(unsigned int i = 1; i < lines.size(); i++){
+  for (unsigned int i = 1; i < lines.size(); i++){
     std::string header_name;
     std::string header_value;
 
-    if(!lines[i].empty()){
+    if (!lines[i].empty()) {
       std::size_t index = lines[i].find_first_of(":");
 
-      if(index != std::string::npos) {
+      if (index != std::string::npos) {
         header_name = lines[i].substr(0, index);
         header_value = lines[i].substr(index+2, std::string::npos);
       }

@@ -120,8 +120,8 @@ std::string Request::body() const {
 }
 
 void Request::AddRequestLine(std::string method, 
-                        std::string uri, 
-                        std::string protocol) {
+                             std::string uri, 
+                             std::string protocol) {
 
   if (method == "" || uri == "" || protocol == "") {
     std::cout << "Empty parameters for request line not allowed\n"; 

@@ -173,8 +173,8 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
                                                                  Response* response) {
   std::cout << "ReverseProxyRequestHandler currently responding.\n";
 
-  std::string reverse_proxy_host = "";
-  std::string reverse_proxy_port = "";
+  std::string reverse_proxy_host;
+  std::string reverse_proxy_port;
   std::vector<std::string> query_host = {"reverse_proxy_host"};
   std::vector<std::string> query_port = {"reverse_proxy_port"};
 
@@ -185,7 +185,8 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   }
 
   if (!config_.propertyLookUp(query_port, reverse_proxy_port)) {
-    std::cout << "Note: Reverse proxy port not specified. Querying host only: " << reverse_proxy_host << std::endl;
+    std::cout << "Note: Reverse proxy port not specified. Querying host only: " 
+              << reverse_proxy_host << std::endl;
   }
 
   // New connection setup
@@ -198,7 +199,9 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   if (reverse_proxy_port != "") {
     port = reverse_proxy_port;
   }
-  std::string modified_proxy_host = ReverseProxyRequestHandler::sanitizeProxyHost(reverse_proxy_host); 
+  std::string modified_proxy_host = 
+  ReverseProxyRequestHandler::sanitizeProxyHost(reverse_proxy_host); 
+  
   tcp::resolver::query query(modified_proxy_host, port);
   tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
   
@@ -207,7 +210,8 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   boost::asio::connect(socket, endpoint_iterator, ec);
   if (ec) {
     // TODO: Return 5xx error instead of 404 
-    std::cout << "Error establishing connection with reverse proxy host: " << reverse_proxy_host << std::endl;
+    std::cout << "Error establishing connection with reverse proxy host: " 
+              << reverse_proxy_host << std::endl;
     return RequestHandler::NOT_FOUND;
   }
   
@@ -236,7 +240,7 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
 
   // Receive response: 
   std::string raw_response; 
-  if(!ReverseProxyRequestHandler::obtainResponse(socket, raw_response)) {
+  if (!ReverseProxyRequestHandler::obtainResponse(socket, raw_response)) {
     return RequestHandler::NOT_FOUND;
   }
 
@@ -266,7 +270,8 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
     boost::asio::connect(socket, resolver.resolve(redirect_query), ec);
     if (ec) {
       // TODO: Return 5xx error instead of 404 
-      std::cout << "Error establishing connection with reverse proxy redirect host: " << redirect_host << std::endl;
+      std::cout << "Error establishing connection with reverse proxy redirect host: "
+                 << redirect_host << std::endl;
       return RequestHandler::NOT_FOUND;
     }
 
@@ -302,16 +307,19 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
       return RequestHandler::NOT_FOUND;
     }
 
-    if (parsed_redirect_response->statusCode() == "302" || parsed_redirect_response->statusCode() == "301") {
+    if (parsed_redirect_response->statusCode() == "302" || 
+        parsed_redirect_response->statusCode() == "301") {
       std::cout << "Attempting to redirect request more than once.\n";
       return RequestHandler::NOT_FOUND;
     }
 
     // Request successful, write response to server
     std::string parsed_redirect_resp_str = parsed_redirect_response->ToString();
-    std::cout << "=== REDIRECT RESPONSE FROM REMOTE ===\n" << parsed_redirect_resp_str << std::endl;
+    std::cout << "=== REDIRECT RESPONSE FROM REMOTE ===\n" 
+              << parsed_redirect_resp_str << std::endl;
 
-    // Some pointer magic to convert a unique_ptr to a raw pointer 
+    // Below we are casting the unique_ptr get() call into a raw pointer
+    // response is also casted to prevent the compiler from complaining
     *(response) = *(parsed_redirect_response.get());
 
     return RequestHandler::OK;
@@ -319,7 +327,8 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   }
 
   // Request successful, write response to server
-  // Some pointer magic to convert a unique_ptr to a raw pointer 
+  /// Below we are casting the unique_ptr get() call into a raw pointer
+  // response is also casted to prevent the compiler from complaining
   *(response) = *(parsed_response.get());
 
   return RequestHandler::OK;
@@ -375,8 +384,8 @@ bool ReverseProxyRequestHandler::obtainResponse(tcp::socket& socket, std::string
   boost::asio::streambuf remote_response_buffer;
   boost::system::error_code ec;
   std::size_t bytes_read;
-  while((bytes_read = boost::asio::read(socket, remote_response_buffer, 
-                      boost::asio::transfer_at_least(1), ec))) {
+  while ((bytes_read = boost::asio::read(socket, remote_response_buffer, 
+                       boost::asio::transfer_at_least(1), ec))) {
 
     // Read the data from buffer into string
     // Taken from: http://www.boost.org/doc/libs/1_61_0/doc/html/boost_asio/overview/core/buffers.html
@@ -387,7 +396,7 @@ bool ReverseProxyRequestHandler::obtainResponse(tcp::socket& socket, std::string
     // Remove the bytes read from the buffer
     remote_response_buffer.consume(bytes_read);
   }
-  if(ec != boost::asio::error::eof) {
+  if (ec != boost::asio::error::eof) {
     // Error reading.
     std::cout << "Error reading response.\n";
     return false;
