@@ -50,6 +50,8 @@ if (actual_proxy_response.stdout != expected_proxy_response):
     print('FAILED: proxy server received a non-matching proxy response')
     print('Expected proxy response: \n%s' % expected_proxy_response)
     print('Completed proxy response: \n%s' % actual_proxy_response.stdout.decode('UTF-8'))
+else:
+  print('SUCCESS: Received expected reverse proxy response!')
 
 # Terminate the server
 server_process.kill()
