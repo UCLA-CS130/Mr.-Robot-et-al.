@@ -10,6 +10,7 @@ RUN apt-get install -y make
 RUN apt-get install -y g++
 
 # This gives us the apt-get-repository command
+# These packages are needed for running unit/integration tests
 RUN apt-get install -y python-software-properties
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository ppa:jonathonf/python-3.6
