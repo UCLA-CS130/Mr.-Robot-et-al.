@@ -2,8 +2,7 @@
 
 ![](https://travis-ci.com/UCLA-CS130/Mr.-Robot-et-al..svg?token=yz9yBJgd4Sxya2e1weD1&branch=master)
 
-:zap: Lightning is a modern, robust web server written in C++. 
-
+:zap: Lightning is a modern, robust web server written in C++.
 # Setup
 
 ### Supported systems
@@ -57,9 +56,9 @@ $ make test
 
 ### Soure Code Layout
 
-Currently most of our source files are stored in our root directory. The provided `nginx-configparser` source files are in the nginx-configparser submodule which also contains the GTest submodule. 
+Currently most of our source files are stored in our root directory. The provided `nginx-configparser` source files are in the nginx-configparser submodule which also contains the GTest submodule.
 
-The following illustrates the hierarchy of `.cc` files as they are called when running the server. 
+The following illustrates the hierarchy of `.cc` files as they are called when running the server.
 
 ```
 lightning_main
@@ -77,9 +76,30 @@ In order to add a new handler, you will need to first create a class definition 
 
 Once you are done with making your handler, you can use it by running the server with a config file that gives your handler a path. See `simple_config` for examples of previous handler paths.
 
-Authors: 
+# Assignment Notes
+
+### Assignment 7 (Reverse Proxy and Multithreading)
+
+[Details about reverse proxies and our implementation can be found here.](https://github.com/UCLA-CS130/Mr.-Robot-et-al./issues/62)
+
+To complete the reverse proxy part of this assignment, we [forked off of Team05's code](https://github.com/kfrankc/Team05) and finally made a few PRs \[[1](https://github.com/UCLA-CS130/Team05/pull/34), [2](https://github.com/UCLA-CS130/Team05/pull/36), [3](https://github.com/UCLA-CS130/Team05/pull/37)\] which merged the new handler into their project. To test this new functionality, we updated their integration test to spin up two servers, one of which is configured with the proxy handler whose port is set to the other server. We also created unit tests which verified the successful initialization of a `ReverseProxyHandler`.
+
+The configuration format for this new handler:
+
+```
+path /reverse_proxy ReverseProxyHandler {
+    # Remote host can be a full URI or an IP address
+    remote_host localhost
+    remote_port 4242
+}
+```
+
+[Multithreading was completed on LightningServer](https://github.com/UCLA-CS130/Mr.-Robot-et-al./pull/66), which now supports synchronous multithreading by spawning a new thread for each request it recieves. Later we might transition over to asynchronous multithreading at which point we could make use of our config's new `num_threads` parameter. Most of our handlers are thread-safe except for `StatusHandler`, which requires the use of a mutex to prevent race conditions when initializing the count of recieved requests.
+
+
+Authors:
 
 * Alex Fong
 * Frank Chen
 * Ky-Cuong Huynh
- 
+
