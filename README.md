@@ -82,7 +82,7 @@ Once you are done with making your handler, you can use it by running the server
 
 [Details about reverse proxies and our implementation can be found here.](https://github.com/UCLA-CS130/Mr.-Robot-et-al./issues/62)
 
-To complete the reverse proxy part of this assignment, we [forked off of Team05's code](https://github.com/kfrankc/Team05) and finally made a few PRs \[[1](https://github.com/UCLA-CS130/Team05/pull/34), [2](), [3]()\] which merged the new handler into their project. To test this new functionality, we updated their integration test to spin up two servers, one of which is configured with the proxy handler whose port is set to the other server. We also created unit tests which verified the successful initialization of a `ReverseProxyHandler`.
+To complete the reverse proxy part of this assignment, we [forked off of Team05's code](https://github.com/kfrankc/Team05) and finally made a few PRs \[[1](https://github.com/UCLA-CS130/Team05/pull/34), [2](https://github.com/UCLA-CS130/Team05/pull/36), [3](https://github.com/UCLA-CS130/Team05/pull/37)\] which merged the new handler into their project. To test this new functionality, we updated their integration test to spin up two servers, one of which is configured with the proxy handler whose port is set to the other server. We also created unit tests which verified the successful initialization of a `ReverseProxyHandler`.
 
 The configuration format for this new handler:
 
