@@ -12,8 +12,8 @@ path /echo EchoRequestHandler {}
 
 path /status StatusHandler {}
 
-# Proxy request to www.ucla.edu/academics/ <= that forward slash is required
-path /reverse_proxy/academics/ ReverseProxyRequestHandler {
+# Proxy request to www.ucla.edu <= that forward slash is required
+path / ReverseProxyRequestHandler {
   reverse_proxy_host  www.ucla.edu;
 }
 
@@ -27,6 +27,8 @@ path /reverse_proxy/static/index.html ReverseProxyRequestHandler {
   reverse_proxy_host localhost; 
   reverse_proxy_port 2020;
 }
+
+
 
 # Default response handler if no handlers match.
 default NotFoundRequestHandler {}
