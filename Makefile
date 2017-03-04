@@ -57,4 +57,4 @@ integration_test: $(TARGET) $(TESTS)
 	pkill $(TARGET)
 
 clean:
-	$(RM) $(TARGET) $(TESTS) *.o *.a *.gcov *.gcno *.gcda -r test_coverage* request_handlers_test
+	$(RM) $(TARGET) $(TESTS) *.o *.a *.gcov *.gcno *.gcda -r test_coverage* request_handlers_test $(TARGET).tar*

@@ -1,5 +1,7 @@
 FROM ubuntu:14.04
 
+# Used just for building
+
 # Avoid confirmation dialogs by setting this non-interactive
 # option, but only for the duration of this image build
 ARG DEBIAN_FRONTEND=noninteractive
@@ -21,12 +23,11 @@ RUN apt-get install -y lcov
 RUN apt-get install -y httpie
 
 WORKDIR /opt/lightning-webserver
-# Copies from current dif into image's working dir
+# Copies from current directory into image's working directory
 COPY . /opt/lightning-webserver
 
 RUN make clean && make
 
-# Port in container, host (check order)
-EXPOSE 2020:2020
-
-CMD ["./lightning", "simple_config"]
+# Output tarballed lightning binary when a container
+# based on this image is run
+CMD tar -cf - lightning
