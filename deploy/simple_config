@@ -1,0 +1,23 @@
+# This is a comment.
+
+port 2020;  # This is also a comment.
+
+num_threads 5;
+
+path /static StaticRequestHandler {
+  root /test;
+}
+
+# Empty config blocks are allowed; not all handlers need options
+# Currently: no default options for handlers
+path /echo EchoRequestHandler {}
+
+path /status StatusHandler {}
+
+path /reverse_proxy ReverseProxyRequestHandler {
+  reverse_proxy_host  ucla.edu;
+  reverse_proxy_port  8080; 
+}
+
+# Default response handler if no handlers match.
+default NotFoundRequestHandler {}

@@ -1,0 +1,11 @@
+FROM busybox:ubuntu
+
+WORKDIR /opt/lightning-webserver
+# Copy files from deploy/ directory into image's working directory
+COPY . /opt/lightning-webserver
+
+RUN tar -xf lightning.tar
+
+EXPOSE 2020:2020
+
+CMD ["./lightning", "simple_config"]

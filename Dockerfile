@@ -30,4 +30,4 @@ RUN make clean && make
 
 # Output tarballed lightning binary when a container
 # based on this image is run
-CMD tar -cf - lightning
+CMD ["tar", "-cf", "-", "lightning"]

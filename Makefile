@@ -28,6 +28,27 @@ all: $(TARGET)
 test: LDFLAGS += $(TEST_COV)
 test: integration_test
 
+# Build Lightning binary
+build: Dockerfile
+	# Create image for compiling Lightning under Ubuntu 14.04/Trusty
+	docker build -t lightning.build .
+	# Output tarballed Lightning binary
+	docker run --rm lightning.build > lightning.tar
+
+# Deploy Lightning binary
+deploy: Dockerfile.run lightning.tar
+	# Copy over binary + config + test files
+	rm -rf deploy/
+	mkdir deploy/
+	cp lightning.tar deploy/
+	cp -r simple_config test/ deploy/
+	# Create image for running Lightning under BusyBox
+	cd deploy/
+	docker build -f Dockerfile.run -t lightning.deploy .
+	# Run Lightning!
+	docker run --rm -t -p 2020:2020 lightning.deploy
+
+
 $(TARGET): $(SRC)
 	$(CXX) $(SRC_FLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
 
