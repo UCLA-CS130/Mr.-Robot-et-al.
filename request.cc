@@ -118,3 +118,45 @@ Request::Headers Request::headers() const {
 std::string Request::body() const {
   return body_;
 }
+
+void Request::AddRequestLine(std::string method, 
+                             std::string uri, 
+                             std::string protocol) {
+
+  if (method == "" || uri == "" || protocol == "") {
+    std::cout << "Empty parameters for request line not allowed\n"; 
+    return;
+  }
+
+  if (method != "GET" && method != "POST" && method != "PUT") {
+    std::cout << "Invalid method for request line\n"; 
+    return;
+  }
+
+  if (protocol != "HTTP/1.1" && method != "HTTP/1.0") {
+    std::cout << "Invalid http protocol for request line\n"; 
+    return;
+  }
+  std::string delimiter = " ";
+  request_line_ = method + delimiter + uri + delimiter + protocol;
+  std::cout << "The request line set is " << request_line_ << std::endl; 
+}
+
+void Request::AddHeader(const std::string& header_name,
+                        const std::string& header_value) {
+  headers_.push_back(std::make_pair(header_name, header_value));
+}
+
+void Request::SetBody(const std::string& body) {
+  body_ = body;
+}
+
+std::string Request::ToString() {
+  std::string request_headers_str = "";
+  for (size_t i = 0; i < headers_.size(); i++) {
+    request_headers_str += headers_[i].first + ": "
+                         + headers_[i].second + "\r\n";
+  }
+  return request_line_ + "\r\n" + request_headers_str + "\r\n" +
+         body_;
+}

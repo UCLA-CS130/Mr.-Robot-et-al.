@@ -122,6 +122,11 @@ class ReverseProxyRequestHandler : public RequestHandler {
   private:
     std::string uri_prefix_;
     ServerConfig config_;
+
+    // Helper functions
+    std::string sanitizeProxyHost(std::string& remote_proxy_host);
+    std::string obtainPath(std::string uri);
+    bool obtainResponse(tcp::socket& socket, std::string& raw_response); 
 };
 REGISTER_REQUEST_HANDLER(ReverseProxyRequestHandler);
 
