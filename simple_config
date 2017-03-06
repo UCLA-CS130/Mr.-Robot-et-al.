@@ -1,6 +1,6 @@
 # This is a comment.
 
-port 2020;  # This is also a comment.
+port 8080;  # This is also a comment.
 
 num_threads 5;
 
