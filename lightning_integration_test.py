@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.6
 
 # NOTE: subprocess.run requires Python 3.5+
 import subprocess
@@ -24,8 +24,8 @@ telnet_request_proc = subprocess.Popen(telnet_request_command, stdout=subprocess
 print('DEBUG: Lightning server started!')
 
 
-# as the telnet is hanging, we will perform an echo request, which should still be 
-# handled by a separate handler in a new thread; it will still succeed and return 
+# as the telnet is hanging, we will perform an echo request, which should still be
+# handled by a separate handler in a new thread; it will still succeed and return
 # a response instantly.
 
 expected_response = b"""GET /echo HTTP/1.1\r\nHost: localhost:8080\r\n\
@@ -45,7 +45,7 @@ if (actual_response.stdout != expected_response):
 else:
     print('SUCCESS: HTTPie request echo; Multithreading successful!')
 
-# Test proxy server 
+# Test proxy server
 print('DEBUG: Creating proxy server!')
 proxy_server_process = subprocess.Popen(['./lightning', 'proxy_config'])
 

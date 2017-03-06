@@ -74,8 +74,8 @@ integration_test: $(TARGET) $(TESTS)
 	./$(TARGET) simple_config &
 	lcov -t "Lightning Coverage" -o test_coverage.info -c -d .
 	genhtml -o test_coverage test_coverage.info
-	python3 lightning_integration_test.py
-	python3 proxy_handler_302_test.py
+	python3.6 lightning_integration_test.py
+	python3.6 proxy_handler_302_test.py
 	pkill $(TARGET)
 
 clean:
