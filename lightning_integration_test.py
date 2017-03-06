@@ -28,7 +28,9 @@ print('DEBUG: Lightning server started!')
 # handled by a separate handler in a new thread; it will still succeed and return 
 # a response instantly.
 
-expected_response = b'GET /echo HTTP/1.1\r\nHost: localhost:8080\r\nAccept-Encoding: gzip, deflate, compress\r\nAccept: */*\r\nUser-Agent: HTTPie/0.8.0\r\n\r\n'
+expected_response = b"""GET /echo HTTP/1.1\r\nHost: localhost:8080\r\n\
+Accept-Encoding: gzip, deflate, compress\r\n\
+Accept: */*\r\nUser-Agent: HTTPie/0.8.0\r\n\r\n"""
 actual_response = run(['http', 'localhost:8080/echo'], stdout=subprocess.PIPE)
 
 if (actual_response.returncode != 0):
