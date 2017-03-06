@@ -13,5 +13,6 @@ addons:
       - libboost-all-dev
       - httpie
       - lcov
+      - telnet
 
 script: make && make test && make clean
