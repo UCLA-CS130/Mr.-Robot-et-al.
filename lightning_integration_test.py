@@ -3,14 +3,19 @@
 # NOTE: subprocess.run requires Python 3.5+
 import subprocess
 from subprocess import run
+import sys
 
 print("\nSTART Lightning integration tests\n")
+
+# We start off with the assumption that the test will succeed
+ec = 0
 
 # Test echoing using httpie
 # Try a background fork/thread
 server_process = subprocess.Popen(['./lightning', 'simple_config'])
 
 # Spawn a shell process to act as hanging http request
+# This tests multithreading
 telnet_request_command = "telnet localhost 2020"
 telnet_request_proc = subprocess.Popen(telnet_request_command, stdout=subprocess.PIPE, shell=True)
 
@@ -23,16 +28,20 @@ print('DEBUG: Lightning server started!')
 # handled by a separate handler in a new thread; it will still succeed and return 
 # a response instantly.
 
-expected_response = b'GET /echo HTTP/1.1\r\nHost: localhost:2020\r\nAccept-Encoding: gzip, deflate, compress\r\nAccept: */*\r\nUser-Agent: HTTPie/0.8.0\r\n\r\n'
-actual_response = run(['http', 'localhost:2020/echo'], stdout=subprocess.PIPE)
+expected_response = b"""GET /echo HTTP/1.1\r\nHost: localhost:8080\r\n\
+Accept-Encoding: gzip, deflate, compress\r\n\
+Accept: */*\r\nUser-Agent: HTTPie/0.8.0\r\n\r\n"""
+actual_response = run(['http', 'localhost:8080/echo'], stdout=subprocess.PIPE)
 
 if (actual_response.returncode != 0):
     print('FAILED: httpie encountered an error')
+    ec = 1;
 
 if (actual_response.stdout != expected_response):
     print('FAILED: httpie received a non-matching echo response')
     print('Expected response: \n%s' % expected_response)
     print('Completed request: \n%s' % actual_response.stdout.decode('UTF-8'))
+    ec = 1;
 else:
     print('SUCCESS: HTTPie request echo; Multithreading successful!')
 
@@ -45,11 +54,13 @@ actual_proxy_response = run(['http', 'localhost:3030/reverse_proxy/static/index.
 
 if (actual_proxy_response.returncode != 0):
     print('FAILED: proxy server encountered an error')
+    ec = 1;
 
 if (actual_proxy_response.stdout != expected_proxy_response):
     print('FAILED: proxy server received a non-matching proxy response')
     print('Expected proxy response: \n%s' % expected_proxy_response)
     print('Completed proxy response: \n%s' % actual_proxy_response.stdout.decode('UTF-8'))
+    ec = 1;
 else:
   print('SUCCESS: Received expected reverse proxy response!')
 
@@ -57,5 +68,10 @@ else:
 server_process.kill()
 proxy_server_process.kill()
 
-
-print("\nEND Lightning integration tests. All tests passed!")
+# Return 0 if the test succeeded or some other value on failure
+if ec == 0:
+    sys.stdout.write("Finished Integration Test. ALL TESTS PASSED!\n")
+    sys.exit(0)
+else:
+    sys.stdout.write("INTEGRATION TEST FAILED\n")
+    sys.exit(ec)
