@@ -4,7 +4,7 @@ MAKEOPTS = "-j 2"
 
 CXX = g++
 SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra
-LDFLAGS = -lpthread -lboost_filesystem -lboost_system -lboost_thread -lboost_regex
+LDFLAGS = -lpthread -lboost_filesystem -lboost_system -lboost_regex
 
 PARSER_PATH = ./nginx-configparser/
 MD_PATH = ./cpp-markdown/

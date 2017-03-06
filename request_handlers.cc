@@ -222,9 +222,7 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   // Avoid "host not found" error
   // See: https://stackoverflow.com/questions/12542460/boost-asio-host-not-found-authorative
   // And: https://github.com/UCLA-CS130/Team05/blob/544269bb60098629000bac8a1278a0c26c0ed7da/reverse_proxy_handler.cc
-  tcp::resolver::query query(modified_proxy_host,
-                             port,
-                             boost::asio::ip::resolver_query_base::numeric_service);
+  tcp::resolver::query query(modified_proxy_host, port);
   tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
   // Try each endpoint until we succesfully establish a connection
