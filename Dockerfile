@@ -21,6 +21,8 @@ RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:jonathonf/python-3.6
 RUN apt-get update
 RUN apt-get install -y python3.6
+RUN PY_PATH=$(which python3.6)
+RUN ln -sf $PY_PATH /usr/bin/python3
 
 # lcov lets us check test coverage
 # HTTPie generates HTTP requests for integration tests

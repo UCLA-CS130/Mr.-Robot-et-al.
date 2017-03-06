@@ -1,14 +1,14 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python
 
 # NOTE: subprocess.run requires Python 3.5+
 import subprocess
 from subprocess import run
 
-# Test proxy server
+# Test proxy server 
 print('DEBUG: Testing 302 response for proxy server!')
 proxy_server_process = subprocess.Popen(['./lightning', 'proxy_config'])
 
-# Store contents of request to www.ucla.edu
+# Store contents of request to www.ucla.edu 
 p = subprocess.Popen(["curl", "www.ucla.edu"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 expected_proxy_response = p.stdout.read()
 actual_proxy_response = run(['http', 'localhost:3030/reverse_proxy_redirect'], stdout=subprocess.PIPE)
