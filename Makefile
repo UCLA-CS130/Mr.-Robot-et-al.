@@ -40,8 +40,10 @@ deploy: Dockerfile.run lightning.tar
 	# Copy over binary + config + test files
 	rm -rf deploy/
 	mkdir deploy/
+	cp Dockerfile.run deploy/
 	cp lightning.tar deploy/
-	cp -r simple_config test/ deploy/
+	cp simple_config deploy/
+	cp -r test/ deploy/
 	# Create image for running Lightning under BusyBox
 	cd deploy/
 	docker build -f Dockerfile.run -t lightning.deploy .
