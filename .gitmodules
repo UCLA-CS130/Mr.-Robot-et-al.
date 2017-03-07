@@ -1,3 +1,6 @@
 [submodule "nginx-configparser"]
 	path = nginx-configparser
 	url = https://github.com/KyCodeHuynh/nginx-configparser.git
+[submodule "cpp-markdown"]
+	path = cpp-markdown
+	url = https://github.com/KyCodeHuynh/Cpp-Markdown.git
