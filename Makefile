@@ -46,7 +46,7 @@ deploy: Dockerfile.run lightning.tar
 	cd deploy/
 	docker build -f Dockerfile.run -t lightning.deploy .
 	# Run Lightning!
-	docker run --rm -t -p 2020:2020 lightning.deploy
+	docker run --rm -t -p 8080:8080 lightning.deploy
 
 
 $(TARGET): $(SRC)

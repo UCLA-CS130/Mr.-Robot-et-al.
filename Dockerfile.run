@@ -6,6 +6,6 @@ COPY . /opt/lightning-webserver
 
 RUN tar -xf lightning.tar
 
-EXPOSE 2020:2020
+EXPOSE 8080:8080
 
 CMD ["./lightning", "simple_config"]
