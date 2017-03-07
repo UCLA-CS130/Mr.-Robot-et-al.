@@ -22,6 +22,7 @@ namespace mime_types {
     { "html", "text/html" },
     { "jpg", "image/jpeg" },
     { "png", "image/png" },
+    { "md", "text/html" },
     { 0, 0 } // Marks end of list.
   };
 

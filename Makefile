@@ -4,9 +4,10 @@ MAKEOPTS = "-j 2"
 
 CXX = g++
 SRC_FLAGS = -std=c++0x -I nginx-configparser/ -Wall -Wextra
-LDFLAGS = -lpthread -lboost_filesystem -lboost_system -lboost_thread
+LDFLAGS = -lpthread -lboost_filesystem -lboost_system -lboost_thread -lboost_regex
 
 PARSER_PATH = ./nginx-configparser/
+MD_PATH = ./cpp-markdown/
 GTEST_DIR = nginx-configparser/googletest/googletest
 GTEST_FLAGS = -isystem ${GTEST_DIR}/include
 TEST_COV = --coverage # --coverage is a synonym for-fprofile-arcs, -ftest-coverage(compiling) and-lgcov(linking).
@@ -19,7 +20,8 @@ TESTS = server_config_test
 SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc \
 	  lightning_server.cc server_config.cc mime_types.cc \
 	  request_handlers.cc request_router.cc request.cc response.cc \
-	  server_stats.cc
+	  server_stats.cc $(MD_PATH)markdown.cpp \
+	  $(MD_PATH)markdown-tokens.cpp
 
 all: $(TARGET)
 
