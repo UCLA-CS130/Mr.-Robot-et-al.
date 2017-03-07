@@ -1,6 +1,6 @@
 # This is a comment.
 
-port 2020;  # This is also a comment.
+port 8080;  # This is also a comment.
 
 num_threads 5;
 
@@ -14,9 +14,9 @@ path /echo EchoRequestHandler {}
 
 path /status StatusHandler {}
 
-path /reverse_proxy ReverseProxyRequestHandler {
-  reverse_proxy_host  ucla.edu;
-  reverse_proxy_port  8080; 
+# Proxy request to www.ucla.edu/academics/ <= that forward slash is required
+path /reverse_proxy/academics/ ReverseProxyRequestHandler {
+  reverse_proxy_host  www.ucla.edu;
 }
 
 # Default response handler if no handlers match.

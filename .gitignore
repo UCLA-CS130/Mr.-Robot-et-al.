@@ -5,6 +5,7 @@
 lightning
 lightning_server_test
 server_config_test
+deploy/Dockerfile.run
 
 # Debugging Symbols
 *.dSYM*
