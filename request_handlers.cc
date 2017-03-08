@@ -4,6 +4,7 @@
 #include "response.h"
 #include "request.h"
 #include "server_config.h"
+#include "./cpp-markdown/markdown.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
@@ -129,7 +130,23 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
 
   response->SetStatus(Response::OK);
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
-  response->SetBody(reply);
+
+  if (extension != "md") {
+    // Non-Markdown case
+    response->SetBody(reply);
+  }
+  else { 
+    // Markdown-handling 
+    markdown::Document doc;
+    doc.read(reply);
+
+    // markdown::write write out to an ostream, so we need to convert it to a string
+    std::ostringstream stream;
+    doc.write(stream);
+    std::string md_html = stream.str();
+
+    response->SetBody(md_html);
+  }
 
   return RequestHandler::OK;
 }

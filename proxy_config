@@ -23,8 +23,8 @@ path /reverse_proxy_redirect ReverseProxyRequestHandler {
 }
 
 # Proxy request to another server instance
-path /reverse_proxy/static/index.html ReverseProxyRequestHandler {
-  reverse_proxy_host localhost; 
+path /reverse_proxy ReverseProxyRequestHandler {
+  reverse_proxy_host localhost;
   reverse_proxy_port 8080;
 }
 
