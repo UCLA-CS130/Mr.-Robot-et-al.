@@ -38,20 +38,21 @@ build: Dockerfile
 # Deploy Lightning binary
 deploy: Dockerfile.run lightning.tar
 	# Copy over binary + config + test files
-	rm -rf deploy/
-	mkdir deploy/
+	rm -rf deploy
+	mkdir deploy
 	tar -xf lightning.tar
 	chmod 0755 lightning
-	cp lightning deploy/
-	cp Dockerfile.run deploy/
-	cp simple_config deploy/
-	cp -r test/ deploy/
-	# Create image for running Lightning under BusyBox
-	cd deploy/
-	docker build -f Dockerfile.run -t lightning.deploy .
-	# Run Lightning!
+	cp lightning deploy
+	cp Dockerfile.run deploy
+	cp simple_config deploy
+	cp -r test deploy
+	# Create image for running Lightning under BusyBox and run it!
+	# Note that make executes each command in a new subshell,
+	# and we need this to all happen in the same folder
+	# See: https://stackoverflow.com/questions/1789594/how-do-i-write-the-cd-command-in-a-makefile
+	cd deploy; \
+	docker build -f Dockerfile.run -t lightning.deploy .; \
 	docker run --rm -t -p 8080:8080 lightning.deploy
-
 
 $(TARGET): $(SRC)
 	$(CXX) $(SRC_FLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
