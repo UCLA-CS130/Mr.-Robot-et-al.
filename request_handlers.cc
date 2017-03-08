@@ -131,19 +131,21 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
   response->SetStatus(Response::OK);
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
 
-  if (extension == "md") {
+  if (extension != "md") {
+    // Non-Markdown case
+    response->SetBody(reply);
+  }
+  else { 
+    // Markdown-handling 
     markdown::Document doc;
     doc.read(reply);
 
     // markdown::write write out to an ostream, so we need to convert it to a string
     std::ostringstream stream;
     doc.write(stream);
-    std::string md_html =  stream.str();
+    std::string md_html = stream.str();
 
     response->SetBody(md_html);
-  }
-  else {
-    response->SetBody(reply);
   }
 
   return RequestHandler::OK;
