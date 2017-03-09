@@ -27,6 +27,7 @@ void processConnection(tcp::socket socket, RequestRouter* router, ServerStats* s
   std::size_t request_buffer_size = socket.read_some(boost::asio::buffer(request_buffer), ec);
 
   switch (ec.value()) {
+    case boost::asio::error::eof:
     case boost::system::errc::success:
       std::cout << "~~~~~~~~~~Request~~~~~~~~~~\n" << request_buffer << std::endl;
       break;

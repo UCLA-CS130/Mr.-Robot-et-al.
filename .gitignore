@@ -1,10 +1,12 @@
-# From GitHub's gitignores, plus our own modifications 
+# From GitHub's gitignores, plus our own modifications
 # Source: https://github.com/github/gitignore/blob/master/C%2B%2B.gitignore
 
 # Project Files
 lightning
 lightning_server_test
 server_config_test
+deploy/Dockerfile.run
+*.pem
 
 # Debugging Symbols
 *.dSYM*

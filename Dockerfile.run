@@ -1,0 +1,9 @@
+FROM busybox:ubuntu-14.04
+
+WORKDIR /opt/lightning-webserver
+# Copy files from deploy/ directory into image's working directory
+COPY . /opt/lightning-webserver
+
+EXPOSE 8080:8080
+
+CMD ["./lightning", "simple_config"]

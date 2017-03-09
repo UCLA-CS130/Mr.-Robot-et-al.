@@ -212,25 +212,3 @@ TEST_F(RequestHandlersTest, NotFoundHandlerTest) {
   EXPECT_EQ(response_string, expected_response)
     << "The resulting response should match the expected 404 response";
 }
-
-TEST_F(RequestHandlersTest, ReverseProxyTest) {
-  const std::string raw_request =
-    "GET /reverse_proxy/academics/ HTTP/1.1\r\n"
-    "Host: localhost:8080\r\n"
-    "Accept-Encoding: gzip, deflate, compress\r\n"
-    "Accept: */*\r\n"
-    "User-Agent: HTTPie/0.8.0\r\n\r\n";
-
-  ASSERT_TRUE(prepareRequest(raw_request));
-  ReverseProxyRequestHandler reverse_proxy_handler; 
-  bool init_ec = reverse_proxy_handler.init("/reverse_proxy/academics/",
-                                            *(server_config_.getChildBlock("/reverse_proxy/academics/")));
-  EXPECT_EQ(init_ec, true)
-    << "Reverse proxy handler should correctly initialize using 'simple_config'";
-
-  RequestHandler::Status status = reverse_proxy_handler.handleRequest(request, &response);
-  EXPECT_EQ(status, RequestHandler::OK)
-    << "Reverse proxy handler should have an 'OK' status code for getting the \
-        getting the contents of ucla.edu/academics";
-}
-
