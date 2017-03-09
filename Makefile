@@ -52,7 +52,7 @@ deploy: Dockerfile.run lightning.tar
 	# See: https://stackoverflow.com/questions/1789594/how-do-i-write-the-cd-command-in-a-makefile
 	cd deploy; \
 	docker build -f Dockerfile.run -t lightning.deploy .; \
-	docker run --rm -t -p 8080:8080 lightning.deploy
+	docker run --rm -t -p 80:8080 lightning.deploy
 
 $(TARGET): $(SRC)
 	$(CXX) $(SRC_FLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
