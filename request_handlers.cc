@@ -135,8 +135,8 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
     // Non-Markdown case
     response->SetBody(reply);
   }
-  else { 
-    // Markdown-handling 
+  else {
+    // Markdown-handling
     markdown::Document doc;
     doc.read(reply);
 
@@ -219,9 +219,6 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
   std::string modified_proxy_host =
   ReverseProxyRequestHandler::sanitizeProxyHost(reverse_proxy_host);
 
-  // Avoid "host not found" error
-  // See: https://stackoverflow.com/questions/12542460/boost-asio-host-not-found-authorative
-  // And: https://github.com/UCLA-CS130/Team05/blob/544269bb60098629000bac8a1278a0c26c0ed7da/reverse_proxy_handler.cc
   tcp::resolver::query query(modified_proxy_host, port);
   tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
@@ -304,7 +301,7 @@ RequestHandler::Status ReverseProxyRequestHandler::handleRequest(const Request& 
     }
     redirect.AddHeader("Host", redirect_host);
     redirect.AddHeader("Accept", "*/*");
-    redirect.AddHeader("Connection", "close") ;
+    redirect.AddHeader("Connection", "close");
 
     std::string redirect_request = redirect.ToString();
     std::cout << "=== REDIRECT REQUEST ===\n" << redirect_request << std::endl;

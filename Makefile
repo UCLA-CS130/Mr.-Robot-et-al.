@@ -18,10 +18,10 @@ TEST_COV = --coverage # --coverage is a synonym for-fprofile-arcs, -ftest-covera
 TARGET = lightning
 TESTS = server_config_test
 SRC = $(PARSER_PATH)config_parser.cc lightning_main.cc \
-	  lightning_server.cc server_config.cc mime_types.cc \
-	  request_handlers.cc request_router.cc request.cc response.cc \
-	  server_stats.cc $(MD_PATH)markdown.cpp \
-	  $(MD_PATH)markdown-tokens.cpp
+	lightning_server.cc server_config.cc mime_types.cc \
+	request_handlers.cc request_router.cc request.cc response.cc \
+	server_stats.cc $(MD_PATH)markdown.cpp \
+	$(MD_PATH)markdown-tokens.cpp
 
 all: $(TARGET)
 
@@ -48,7 +48,7 @@ deploy: Dockerfile.run lightning.tar
 	cp -r test deploy
 	# Create image for running Lightning under BusyBox and run it!
 	# Note that make executes each command in a new subshell,
-	# and we need this to all happen in the same folder
+	# and we need a semicolon so that processes are spawned in the same folder
 	# See: https://stackoverflow.com/questions/1789594/how-do-i-write-the-cd-command-in-a-makefile
 	cd deploy; \
 	docker build -f Dockerfile.run -t lightning.deploy .; \

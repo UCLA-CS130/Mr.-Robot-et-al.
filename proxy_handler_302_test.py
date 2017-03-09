@@ -7,19 +7,17 @@ import sys
 # We start off with the assumption that the test will succeed
 ec = 0
 
-# Test proxy server 
+# Test proxy server
 print('DEBUG: Testing 302 response for proxy server!')
 proxy_server_process = Popen(['./lightning', 'proxy_config'])
 
-# Store contents of request to www.ucla.edu 
+# Store contents of request to www.ucla.edu
 p = Popen(["curl", "www.ucla.edu"], stdout=PIPE, stderr=PIPE)
 expected_proxy_response = p.stdout.read()
 actual_proxy_response = Popen(['http', 'localhost:3030/reverse_proxy_redirect'], stdout=PIPE)
 
 if (actual_proxy_response.communicate()[0].decode('utf-8') != expected_proxy_response.decode('utf-8')):
     print('FAILED: proxy server received a non-matching proxy response')
-    # print('Expected proxy response: \n%s' % expected_proxy_response)
-    # print('Completed proxy response: \n%s' % actual_proxy_response.communicate()[0].decode('UTF-8'))
     ec = 1
 else:
   print('SUCCESS: Received expected reverse proxy response!')

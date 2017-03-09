@@ -33,8 +33,6 @@ actual_response = Popen(['http', 'localhost:8080/echo'], stdout=PIPE)
 
 if (actual_response.communicate()[0].decode() != expected_response):
     print('FAILED: httpie received a non-matching echo response')
-    print('Expected response: \n%s' % expected_response)
-    print('Completed request: \n%s' % actual_response.stdout.decode('UTF-8'))
     ec = 1;
 else:
     print('SUCCESS: HTTPie request echo; Multithreading successful!')
@@ -48,8 +46,6 @@ actual_proxy_response = Popen(['http', 'localhost:3030/reverse_proxy/static/inde
 
 if (actual_proxy_response.communicate()[0].decode() != expected_proxy_response):
     print('FAILED: proxy server received a non-matching proxy response')
-    print('Expected proxy response: \n%s' % expected_proxy_response)
-    print('Completed proxy response: \n%s' % actual_proxy_response.stdout.decode('UTF-8'))
     ec = 1;
 else:
   print('SUCCESS: Received expected reverse proxy response!')

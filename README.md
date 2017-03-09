@@ -40,12 +40,10 @@ everything, we have the following dependencies:
 
 * Boost: used for socket networking as well as string manipulation.
 * lcov: used to create test coverage webpages.
-* Python 3.6: Our integration test that uses methods not supported in version
-  of Python earlier than 3.6
 * HTTPie: a handy tool for checking HTTP connections that we use in our
   integration test.
 
-To install these dependencies, simply run: 
+To install these dependencies, simply run:
 
 ```
 ./configure.sh
