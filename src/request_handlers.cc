@@ -120,6 +120,11 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
     return RequestHandler::NOT_FOUND;
   }
 
+  // Set the cache_max_age as specified in the config file
+  std::vector<std::string> query_path = {"cache_max_age"};
+  std::string cache_max_age;
+  bool found_cache = config_.propertyLookUp(query_path, cache_max_age);
+
   // Read file into buffer
   std::ifstream file(full_path.c_str(), std::ios::in | std::ios::binary);
   std::string reply = "";
@@ -130,6 +135,12 @@ RequestHandler::Status StaticRequestHandler::handleRequest(const Request& reques
 
   response->SetStatus(Response::OK);
   response->AddHeader("Content-Type", mime_types::extension_to_type(extension));
+
+  // Add header for cache max-age if it was specified
+  if (found_cache) {
+    cache_max_age_ = cache_max_age;
+    response->AddHeader("Cache-Control", "public, max-age=" + cache_max_age_);
+  }
 
   if (extension != "md") {
     // Non-Markdown case

@@ -90,6 +90,7 @@ class StaticRequestHandler : public RequestHandler {
   private:
     std::string uri_prefix_;
     ServerConfig config_;
+    std::string cache_max_age_;
 };
 REGISTER_REQUEST_HANDLER(StaticRequestHandler);
 
