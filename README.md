@@ -20,7 +20,7 @@ Then grab a copy of this repository:
 $ git clone --recursive https://github.com/UCLA-CS130/Mr.-Robot-et-al..git
 ```
 
-Then, to build a Lightning binary (using `Dockerfile`: 
+Then, to build a Lightning binary using `Dockerfile`: (prepend `sudo` to the following two commands if you're running this on Linux)
 
 ```
 make build

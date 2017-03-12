@@ -42,7 +42,7 @@ build: Dockerfile
 
 # Deploy Lightning binary
 deploy: Dockerfile.run lightning.tar
-	# Copy over binary + config + test files
+	# Copy over binary + config + assets files
 	rm -rf deploy
 	mkdir deploy
 	tar -xf lightning.tar
@@ -50,15 +50,15 @@ deploy: Dockerfile.run lightning.tar
 	cp lightning deploy
 	cp Dockerfile.run deploy
 	cp simple_config deploy
-	cp -r test deploy
+	cp -r assets deploy
 	# Create image for running Lightning under BusyBox and run it!
 	# Note that make executes each command in a new subshell,
 	# and we need a semicolon so that processes are spawned in the same folder
 	# See: https://stackoverflow.com/questions/1789594/how-do-i-write-the-cd-command-in-a-makefile
 	cd deploy; \
 	docker build -f Dockerfile.run -t lightning.deploy .; \
-	sudo docker save lightning.deploy | bzip2 | ssh -i "assignment-8-cs130-t2-small.pem" ubuntu@ec2-54-242-5-206.compute-1.amazonaws.com 'bunzip2 | docker load; exit'; \
-	ssh -i "../assignment-8-cs130-t2-small.pem" ubuntu@ec2-54-242-5-206.compute-1.amazonaws.com -t 'docker stop $$(docker ps -a -q); docker run -d -t -p 80:8080 lightning.deploy; exit'
+	sudo docker save lightning.deploy | bzip2 | ssh -i "../assignment-8-cs130-t2-small.pem" ubuntu@ec2-54-242-5-206.compute-1.amazonaws.com 'bunzip2 | sudo docker load && exit'; \
+	ssh -i "../assignment-8-cs130-t2-small.pem" ubuntu@ec2-54-242-5-206.compute-1.amazonaws.com -t 'sudo docker stop $$(sudo docker ps -a -q) && sudo docker run -d -t -p 80:8080 lightning.deploy; exit'
 
 $(TARGET): $(SRC)
 	$(CXX) $(SRC_FLAGS) $(SRC) $(LDFLAGS) -o $(TARGET)
