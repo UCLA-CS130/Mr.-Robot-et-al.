@@ -87,8 +87,8 @@ we can load an Angry Birds image with:
 
 A browser's developer tools should show an `200 OK` response. Then: 
 
-* Refresh the page, and a `304 Redirect` (to cache) or `200 OK (cached)` should
-  occur, as the browser is locally caching the content.
+* Refresh the page, and a `200 OK (cached)` should occur, as the browser is
+  locally caching the content.
 * Wait 5 seconds, and refresh the page again. A `200 OK` response should once
   again be seen, as the content has expired.
 
