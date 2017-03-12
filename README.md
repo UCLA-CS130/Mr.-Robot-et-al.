@@ -26,7 +26,14 @@ Then, to build a Lightning binary using `Dockerfile`: (prepend `sudo` to the fol
 make build
 ```
 
-And to start the Lightning server (using `Dockerfile.run`):
+And to start the Lightning server locally (using `Dockerfile.run`):
+
+```
+make local_deploy
+```
+
+To update our AWS instance of Lightning (this should ONLY be run on `master`
+branch, which is kept always-working):
 
 ```
 make deploy
