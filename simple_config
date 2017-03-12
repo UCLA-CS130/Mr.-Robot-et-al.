@@ -5,7 +5,7 @@ port 8080;  # This is also a comment.
 num_threads 5;
 
 path /static StaticRequestHandler {
-  root /test;
+  root /assets;
 }
 
 # Empty config blocks are allowed; not all handlers need options

@@ -1,6 +1,6 @@
-#include "config_parser.h"
+#include "../nginx-configparser/config_parser.h"
 #include "gtest/gtest.h"
-#include "server_config.h"
+#include "../src/server_config.h"
 
 #include <string>
 #include <sstream>

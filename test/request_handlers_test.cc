@@ -1,11 +1,11 @@
-#include "config_parser.h"
+#include "../nginx-configparser/config_parser.h"
 #include "gtest/gtest.h"
-#include "mime_types.h"
-#include "request_handlers.h"
-#include "request_router.h"
-#include "server_config.h"
-#include "request.h"
-#include "response.h"
+#include "../src/mime_types.h"
+#include "../src/request_handlers.h"
+#include "../src/request_router.h"
+#include "../src/server_config.h"
+#include "../src/request.h"
+#include "../src/response.h"
 
 #include <cstddef>
 #include <fstream>
@@ -34,7 +34,7 @@ protected:
 
 TEST_F(RequestHandlersTest, EchoHandlerTest) {
   const std::string raw_request =
-    "GET /echo HTTP/1.1\r\nHost: 127.0.0.1:2020\r\n"
+    "GET /echo HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n"
     "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64;"
     " rv:44.0) Gecko/20100101 Firefox/44.0\r\nAccept: "
     "text/html,application/xhtml+xml,application/xml;"
@@ -53,7 +53,7 @@ TEST_F(RequestHandlersTest, EchoHandlerTest) {
 
   const std::string test_response_string =
     "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n"
-    "GET /echo HTTP/1.1\r\nHost: 127.0.0.1:2020\r\n"
+    "GET /echo HTTP/1.1\r\nHost: 127.0.0.1:8080\r\n"
     "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64;"
     " rv:44.0) Gecko/20100101 Firefox/44.0\r\nAccept: "
     "text/html,application/xhtml+xml,application/xml;"
@@ -67,7 +67,7 @@ TEST_F(RequestHandlersTest, EchoHandlerTest) {
 TEST_F(RequestHandlersTest, StaticHandlerHTMLTest) {
   const std::string raw_request =
     "GET /static/index.html HTTP/1.1\r\n"
-    "Host: localhost:2020\r\n"
+    "Host: localhost:8080\r\n"
     "Accept-Encoding: gzip, deflate, compress\r\n"
     "Accept: */*\r\n"
     "User-Agent: HTTPie/0.8.0\r\n\r\n";
@@ -85,7 +85,7 @@ TEST_F(RequestHandlersTest, StaticHandlerHTMLTest) {
         getting the index.html test file";
 
   // Getting the content of index.html
-  std::ifstream file("test/index.html", std::ios::binary);
+  std::ifstream file("./assets/index.html", std::ios::binary);
   std::ostringstream buffer;
   buffer << file.rdbuf();
   std::string html_content(buffer.str());
@@ -98,7 +98,7 @@ TEST_F(RequestHandlersTest, StaticHandlerHTMLTest) {
 TEST_F(RequestHandlersTest, StaticHandlerFileNotFoundTest) {
   const std::string raw_request =
     "GET /static/foo.bar HTTP/1.1\r\n"
-    "Host: localhost:2020\r\n"
+    "Host: localhost:8080\r\n"
     "Accept-Encoding: gzip, deflate, compress\r\n"
     "Accept: */*\r\n"
     "User-Agent: HTTPie/0.8.0\r\n\r\n";
@@ -119,7 +119,7 @@ TEST_F(RequestHandlersTest, StaticHandlerFileNotFoundTest) {
 TEST_F(RequestHandlersTest, StaticHandlerPNGTest) {
   const std::string raw_request =
     "GET /static/angrybird.png HTTP/1.1\r\n"
-    "Host: localhost:2020\r\n"
+    "Host: localhost:8080\r\n"
     "Accept-Encoding: gzip, deflate, compress\r\n"
     "Accept: */*\r\n"
     "User-Agent: HTTPie/0.8.0\r\n\r\n";
@@ -137,7 +137,7 @@ TEST_F(RequestHandlersTest, StaticHandlerPNGTest) {
         getting the angrybird.png image";
 
   // Getting the content of angrybird.png
-  std::ifstream file("test/angrybird.png", std::ios::binary);
+  std::ifstream file("./assets/angrybird.png", std::ios::binary);
   std::ostringstream buffer;
   buffer << file.rdbuf();
   std::string img_content(buffer.str());
@@ -150,7 +150,7 @@ TEST_F(RequestHandlersTest, StaticHandlerPNGTest) {
 TEST_F(RequestHandlersTest, StaticHandlerGIFTest) {
   const std::string raw_request =
     "GET /static/angrybird.gif HTTP/1.1\r\n"
-    "Host: localhost:2020\r\n"
+    "Host: localhost:8080\r\n"
     "Accept-Encoding: gzip, deflate, compress\r\n"
     "Accept: */*\r\n"
     "User-Agent: HTTPie/0.8.0\r\n\r\n";
@@ -168,7 +168,7 @@ TEST_F(RequestHandlersTest, StaticHandlerGIFTest) {
         getting the angrybird.gif image";
 
   // Getting the content of angrybird.gif
-  std::ifstream file("test/angrybird.gif", std::ios::binary);
+  std::ifstream file("./assets/angrybird.gif", std::ios::binary);
   std::ostringstream buffer;
   buffer << file.rdbuf();
   std::string img_content(buffer.str());
