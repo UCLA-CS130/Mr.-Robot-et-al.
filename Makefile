@@ -50,7 +50,7 @@ local_deploy: Dockerfile.run lightning.tar
 	cp lightning deploy
 	cp Dockerfile.run deploy
 	cp simple_config deploy
-	cp -r test deploy
+	cp -r assets deploy
 	# Create image for running Lightning under BusyBox and run it!
 	# Note that make executes each command in a new subshell,
 	# and we need a semicolon so that processes are spawned in the same folder

@@ -19,7 +19,7 @@ will now automatically be rendered into Markdown-style HTML before being
 served up. Previously, such files would have been served as plain text, 
 which is off-putting to many users and difficult to read.
 
-This design document is served up in this way. It's a perfect example of
+This design document itself is served up in this way. It's a perfect example of
 how Markdown improves readability and the delightfulness of a Lightning-powered
 user experience.
 
@@ -30,13 +30,13 @@ To render the Markdown, we use the excellent [Cpp-Markdown](https://github.com/K
 
 For a running Lightning server, visit any one of these paths: 
 
-    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md
-    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/lightning-1.0-features.md
+* [http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md](http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md)
+* [http://ec2-54-242-5-206.compute-1.amazonaws.com/static/new-features](http://ec2-54-242-5-206.compute-1.amazonaws.com/static/new-features.md)
 
-To try your own file, create one under the `test/` folder
+To try your own file, create one under the `assets/` folder
 and visit: 
 
-    http://ec2-54-242-5-206.compute-1.amazonaws.com/file-name.md
+* [http://localhost:8080/static/file-name.md](http://localhost:8080/static/file-name)
 
 
 ### Cache-Control Server Directive

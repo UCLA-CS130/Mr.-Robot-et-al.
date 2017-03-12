@@ -19,7 +19,7 @@ will now automatically be rendered into Markdown-style HTML before being
 served up. Previously, such files would have been served as plain text, 
 which is off-putting to many users and difficult to read.
 
-This design document is served up in this way. It's a perfect example of
+This design document itself is served up in this way. It's a perfect example of
 how Markdown improves readability and the delightfulness of a Lightning-powered
 user experience.
 
@@ -30,13 +30,13 @@ To render the Markdown, we use the excellent [Cpp-Markdown](https://github.com/K
 
 For a running Lightning server, visit any one of these paths: 
 
-    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md
-    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/lightning-1.0-features.md
+* [http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md](http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md)
+* [http://ec2-54-242-5-206.compute-1.amazonaws.com/static/new-features](http://ec2-54-242-5-206.compute-1.amazonaws.com/static/new-features.md)
 
-To try your own file, create one under the `test/` folder
+To try your own file, create one under the `assets/` folder
 and visit: 
 
-    http://ec2-54-242-5-206.compute-1.amazonaws.com/file-name.md
+* [http://localhost:8080/static/file-name.md](http://localhost:8080/static/file-name)
 
 
 ### Cache-Control Server Directive
@@ -77,7 +77,7 @@ expiration time, e.g., 5 seconds:
 
     path / StaticRequestHandler {
       root /test;
-      cache_max_age: 5; # seconds, no commas or periods
+      cache_max_age 5; # seconds, no commas or periods
     }
 
 Load any static file. For example, with our default Lightning instance, 
@@ -87,21 +87,12 @@ we can load an Angry Birds image with:
 
 A browser's developer tools should show an `200 OK` response. Then: 
 
-* Refresh the page, and a `304 Redirect` (to cache) or `200 OK (cached)` should
-  occur, as the browser is locally caching the content.
+* Refresh the page, and a `200 OK (cached)` should occur, as the browser is
+  locally caching the content.
 * Wait 5 seconds, and refresh the page again. A `200 OK` response should once
   again be seen, as the content has expired.
 
 The above can be repeated with any static file.
-
-
-### HTTP Basic Authentication
-
-* What is the feature?
-* Use-cases for it
-* Notable implementation details
-* Demo walkthrough instructions for each new feature
-    - And some way to demonstrate that we're not just hard-coding
 
 
 ## Core Lightning Features
