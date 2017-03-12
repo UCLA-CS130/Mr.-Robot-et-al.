@@ -6,6 +6,7 @@ num_threads 5;
 
 path /static StaticRequestHandler {
   root /assets;
+  cache_max_age 5;
 }
 
 # Empty config blocks are allowed; not all handlers need options
