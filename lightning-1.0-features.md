@@ -1,7 +1,13 @@
 # Lightning v1.0 Features
 
 Lightning is out of beta! With our official release, we'd like
-to highlight our past accomplishments and some new features. 
+to highlight our past accomplishments and some new features.
+
+Core developers: 
+
+* Alex Fong
+* Frank Chen
+* Ky-Cuong Huynh
 
 
 ## New Lightning Features
@@ -10,7 +16,8 @@ to highlight our past accomplishments and some new features.
 
 All Markdown files (like [this one](https://github.com/UCLA-CS130/Mr.-Robot-et-al./blob/e34b0fcb693a28f48e4270a6f0e38967f05a3b65/test/test.md))
 will now automatically be rendered into Markdown-style HTML before being 
-served up. Previously, such files would have been served as plain text. 
+served up. Previously, such files would have been served as plain text, 
+which is off-putting to many users and difficult to read.
 
 This design document is served up in this way. It's a perfect example of
 how Markdown improves readability and the delightfulness of a Lightning-powered
@@ -21,7 +28,7 @@ To render the Markdown, we use the excellent [Cpp-Markdown](https://github.com/K
 
 #### Demo
 
-For a running Lightning server, visit any one of these links: 
+For a running Lightning server, visit any one of these paths: 
 
     domain:port/test.md
     domain:port/lightning-1.0-features.md
@@ -34,11 +41,58 @@ and visit:
 
 ### Cache-Control Server Directive
 
-* What is the feature?
-* Use-cases for it
-* Notable implementation details
-* Demo walkthrough instructions for each new feature
-    - And some way to demonstrate that we're not just hard-coding
+Lightning can now direct clients to expire locally cached content 
+after a specified time. This lets a Lightning administrator globally
+configure how long static files will be cached by a browser. That way, 
+users will usually have the latest version of files.
+
+To configure this functionality, a new parameter `cache_max_age` has been added to the config
+block for any StaticFileHandler. For example:
+
+    path / StaticRequestHandler {
+      root /public;
+      # 86400 seconds = 24 hours = 1 day
+      cache_max_age: 86400; # seconds, no commas or periods
+    }
+
+Then, in response to requests hitting this path, Lightning will set
+the [`Cache-Control`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control) header: 
+
+    Cache-Control: public, max-age=86400
+
+Browsers that support this header (all modern ones do) will then cache the content received for up to 86,400 seconds (1 day).
+
+*Note*: `cache_max_age` is an *optional* parameter. If it is not set, no 
+`Cache-Control` header will be set. 
+
+In terms of implementation, we modified the `StaticRequestHandler`
+to query its `ServerConfig` for this new parameter. In general, server-only
+parameters can be added this way.
+
+
+#### Demo
+
+Modify the `simple_config` configuration file to have a short cache
+expiration time, e.g., 5 seconds: 
+
+    path / StaticRequestHandler {
+      root /test;
+      cache_max_age: 5; # seconds, no commas or periods
+    }
+
+Load any static file. For example, with our default Lightning instance, 
+we can load an Angry Birds image with: 
+
+    localhost:8080/angrybird.png
+
+Chrome's DevTools should show an `200 OK` response. Then: 
+
+* Refresh the page, and a `304 Redirect` (to cache) should occur, as Chrome is
+  locally caching the content.
+* Wait 5 seconds, and refresh the page again. A `200 OK` response should once
+  again be seen, as the content has expired.
+
+The above can be repeated with any static file.
 
 
 ### HTTP Basic Authentication
@@ -48,8 +102,6 @@ and visit:
 * Notable implementation details
 * Demo walkthrough instructions for each new feature
     - And some way to demonstrate that we're not just hard-coding
-
-
 
 
 ## Core Lightning Features
