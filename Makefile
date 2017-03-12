@@ -40,7 +40,26 @@ build: Dockerfile
 	# Output tarballed Lightning binary
 	docker run --rm lightning.build > lightning.tar
 
-# Deploy Lightning binary
+# Deploy Lightning locally
+local_deploy: Dockerfile.run lightning.tar
+	# Copy over binary + config + test files
+	rm -rf deploy
+	mkdir deploy
+	tar -xf lightning.tar
+	chmod 0755 lightning
+	cp lightning deploy
+	cp Dockerfile.run deploy
+	cp simple_config deploy
+	cp -r assets deploy
+	# Create image for running Lightning under BusyBox and run it!
+	# Note that make executes each command in a new subshell,
+	# and we need a semicolon so that processes are spawned in the same folder
+	# See: https://stackoverflow.com/questions/1789594/how-do-i-write-the-cd-command-in-a-makefile
+	cd deploy; \
+	docker build -f Dockerfile.run -t lightning.deploy .; \
+	docker run --rm -t -p 8080:8080 lightning.deploy
+
+# Deploy Lightning binary to AWS
 deploy: Dockerfile.run lightning.tar
 	# Copy over binary + config + assets files
 	rm -rf deploy
