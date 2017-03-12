@@ -1,7 +1,7 @@
 #include <sstream>
 #include <string>
 
-#include "lightning_server.h"
+#include "../src/lightning_server.h"
 #include "gtest/gtest.h"
 
 TEST(TestTests, FirstTest) {

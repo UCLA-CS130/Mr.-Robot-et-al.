@@ -3,7 +3,7 @@
 port 3030;  # This is also a comment.
 
 path /static StaticRequestHandler {
-  root /test;
+  root /assets;
 }
 
 # Empty config blocks are allowed; not all handlers need options

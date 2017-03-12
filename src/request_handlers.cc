@@ -4,7 +4,7 @@
 #include "response.h"
 #include "request.h"
 #include "server_config.h"
-#include "./cpp-markdown/markdown.h"
+#include "../cpp-markdown/markdown.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
