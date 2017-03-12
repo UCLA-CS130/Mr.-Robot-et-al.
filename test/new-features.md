@@ -30,13 +30,13 @@ To render the Markdown, we use the excellent [Cpp-Markdown](https://github.com/K
 
 For a running Lightning server, visit any one of these paths: 
 
-    domain:port/test.md
-    domain:port/lightning-1.0-features.md
+    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/test.md
+    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/lightning-1.0-features.md
 
 To try your own file, create one under the `test/` folder
 and visit: 
 
-    domain:port/file-name.md
+    http://ec2-54-242-5-206.compute-1.amazonaws.com/file-name.md
 
 
 ### Cache-Control Server Directive
@@ -83,7 +83,7 @@ expiration time, e.g., 5 seconds:
 Load any static file. For example, with our default Lightning instance, 
 we can load an Angry Birds image with: 
 
-    localhost:8080/angrybird.png
+    http://ec2-54-242-5-206.compute-1.amazonaws.com/static/angrybird.png
 
 A browser's developer tools should show an `200 OK` response. Then: 
 
@@ -93,15 +93,6 @@ A browser's developer tools should show an `200 OK` response. Then:
   again be seen, as the content has expired.
 
 The above can be repeated with any static file.
-
-
-### HTTP Basic Authentication
-
-* What is the feature?
-* Use-cases for it
-* Notable implementation details
-* Demo walkthrough instructions for each new feature
-    - And some way to demonstrate that we're not just hard-coding
 
 
 ## Core Lightning Features
