@@ -90,7 +90,7 @@ $ make test
 
 ### Soure Code Layout
 
-The current layout of our source files is laid out below. The assets to be served by the static handler are stored in `assets/`. The server can be conifgured using the configs stored in our root directory. The provided `nginx-configparser` source files are in the nginx-configparser submodule which also contains the GTest submodule. `Deploy` is used during deployment into images by Docker.
+The current layout of our source files is laid out below. The assets to be served by the static handler are stored in `assets/`. The server can be configured using the configs stored in our root directory. `deploy` is used during deployment into images by Docker. Other libraries we use can be found in their respective submodules.
 
 ```
 src/
@@ -102,6 +102,7 @@ example_config
 
 # Other libraries
 nginx-configparser/
+  gtest/
 cpp-markdown/
 ```
 
