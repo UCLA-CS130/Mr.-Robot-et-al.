@@ -77,7 +77,7 @@ expiration time, e.g., 5 seconds:
 
     path / StaticRequestHandler {
       root /test;
-      cache_max_age: 5; # seconds, no commas or periods
+      cache_max_age 5; # seconds, no commas or periods
     }
 
 Load any static file. For example, with our default Lightning instance, 
